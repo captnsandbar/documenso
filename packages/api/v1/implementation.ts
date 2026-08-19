@@ -1411,6 +1411,11 @@ export const ApiContractV1Implementation = tsr.router(ApiContractV1, {
                 error: 'FREE_SIGNATURE is not supported',
                 data: undefined,
               }))
+              .with('ATTACHMENT', () => ({
+                success: false,
+                error: 'ATTACHMENT is not supported via API v1',
+                data: undefined,
+              }))
               .exhaustive();
 
             if (!result.success) {

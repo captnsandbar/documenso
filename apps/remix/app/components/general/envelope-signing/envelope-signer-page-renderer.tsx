@@ -23,13 +23,22 @@ import { EnvelopeRecipientFieldTooltip } from '@documenso/ui/components/document
 import { EnvelopeFieldToolTip } from '@documenso/ui/components/field/envelope-field-tooltip';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { type Field, FieldType, type Recipient, RecipientRole, type Signature, SigningStatus } from '@prisma/client';
+import {
+  type Field,
+  FieldType,
+  type FieldUpload,
+  type Recipient,
+  RecipientRole,
+  type Signature,
+  SigningStatus,
+} from '@prisma/client';
 import type Konva from 'konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import { useEffect, useMemo, useRef } from 'react';
 import { match } from 'ts-pattern';
 
 import { useEmbedSigningContext } from '~/components/embed/embed-signing-context';
+import { handleAttachmentFieldClick } from '~/utils/field-signing/attachment-field';
 import { handleCheckboxFieldClick } from '~/utils/field-signing/checkbox-field';
 import { handleDropdownFieldClick } from '~/utils/field-signing/dropdown-field';
 import { handleEmailFieldClick } from '~/utils/field-signing/email-field';
@@ -44,6 +53,11 @@ import { useRequiredEnvelopeSigningContext } from '../document-signing/envelope-
 
 type GenericLocalField = TEnvelope['fields'][number] & {
   recipient: Pick<Recipient, 'id' | 'name' | 'email' | 'signingStatus'>;
+};
+
+type LocalSignerField = Field & {
+  signature?: Signature | null;
+  fieldUpload?: Pick<FieldUpload, 'fileName' | 'previewImageAsBase64'> | null;
 };
 
 export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderData }) => {
@@ -61,6 +75,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
     recipientFieldsRemaining,
     showPendingFieldTooltip,
     signField: signFieldInternal,
+    signFieldAttachment: signFieldAttachmentInternal,
     email: emailState,
     setEmail,
     fullName: fullNameState,
@@ -83,7 +98,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
     signature.current = signatureState;
   }, [fullNameState, emailState, signatureState]);
 
-  const cachedRenderFields = useRef<Map<number, Field & { signature?: Signature | null }>>(new Map());
+  const cachedRenderFields = useRef<Map<number, LocalSignerField>>(new Map());
   const prevShowPendingFieldTooltip = useRef(showPendingFieldTooltip);
 
   const { onFieldSigned, onFieldUnsigned } = useEmbedSigningContext() || {};
@@ -139,10 +154,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
     });
   }, [envelope.recipients, pageNumber, currentEnvelopeItem?.id]);
 
-  const unsafeRenderFieldOnLayer = (
-    unparsedField: Field & { signature?: Signature | null },
-    fieldCanvasStyleCache: FieldCanvasStyleCache,
-  ) => {
+  const unsafeRenderFieldOnLayer = (unparsedField: LocalSignerField, fieldCanvasStyleCache: FieldCanvasStyleCache) => {
     if (!pageLayer.current) {
       console.error('Layer not loaded yet');
       return;
@@ -166,6 +178,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
         positionY: Number(fieldToRender.positionY),
         isValidating,
         signature: unparsedField.signature,
+        fieldUpload: unparsedField.fieldUpload,
       },
       translations: getClientSideFieldTranslations(i18n),
       pageWidth: unscaledViewport.width,
@@ -374,6 +387,31 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
           });
         })
         /**
+         * ATTACHMENT FIELD.
+         */
+        .with({ type: FieldType.ATTACHMENT }, (field) => {
+          void handleAttachmentFieldClick({ field })
+            .then(async (payload) => {
+              if (!payload) {
+                return;
+              }
+
+              fieldGroup.add(loadingSpinnerGroup);
+
+              if (payload.action === 'clear') {
+                await signField(field.id, {
+                  type: FieldType.ATTACHMENT,
+                  value: null,
+                });
+              } else {
+                await signAttachmentField(field.id, payload.file, payload.previewImageAsBase64);
+              }
+            })
+            .finally(() => {
+              loadingSpinnerGroup.destroy();
+            });
+        })
+        /**
          * SIGNATURE FIELD.
          */
         .with({ type: FieldType.SIGNATURE }, (field) => {
@@ -418,10 +456,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
     fieldGroup.on('pointerdown', handleFieldGroupClick);
   };
 
-  const renderFieldOnLayer = (
-    unparsedField: Field & { signature?: Signature | null },
-    fieldCanvasStyleCache: FieldCanvasStyleCache,
-  ) => {
+  const renderFieldOnLayer = (unparsedField: LocalSignerField, fieldCanvasStyleCache: FieldCanvasStyleCache) => {
     try {
       unsafeRenderFieldOnLayer(unparsedField, fieldCanvasStyleCache);
     } catch (err) {
@@ -510,6 +545,26 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
       toast({
         title: t`Error`,
         description: t`An error occurred while signing the field.`,
+        variant: 'destructive',
+      });
+
+      throw err;
+    }
+  };
+
+  const signAttachmentField = async (fieldId: number, file: File, previewImageAsBase64?: string) => {
+    try {
+      const { inserted } = await signFieldAttachmentInternal(fieldId, file, previewImageAsBase64);
+
+      if (inserted && onFieldSigned) {
+        onFieldSigned({ fieldId, value: file.name, isBase64: false });
+      }
+    } catch (err) {
+      console.error(err);
+
+      toast({
+        title: t`Error`,
+        description: t`An error occurred while uploading the file.`,
         variant: 'destructive',
       });
 

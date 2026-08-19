@@ -6,10 +6,18 @@ import { generateAuditLogPdf } from '@documenso/lib/server-only/pdf/generate-aud
 import { generateCertificatePdf } from '@documenso/lib/server-only/pdf/generate-certificate-pdf';
 import { getLastPageDimensions } from '@documenso/lib/server-only/pdf/get-page-size';
 import { prisma } from '@documenso/prisma';
+import type { FieldWithSignature } from '@documenso/prisma/types/field-with-signature';
 import { signPdf } from '@documenso/signing';
 import { PDF } from '@libpdf/core';
-import type { DocumentData, Envelope, EnvelopeItem, Field } from '@prisma/client';
-import { DocumentStatus, EnvelopeType, RecipientRole, SigningStatus, WebhookTriggerEvents } from '@prisma/client';
+import type { DocumentData, Envelope, EnvelopeItem } from '@prisma/client';
+import {
+  DocumentStatus,
+  EnvelopeType,
+  FieldType,
+  RecipientRole,
+  SigningStatus,
+  WebhookTriggerEvents,
+} from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { groupBy } from 'remeda';
 
@@ -65,6 +73,11 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
             field: {
               include: {
                 signature: true,
+                fieldUpload: {
+                  include: {
+                    documentData: true,
+                  },
+                },
               },
             },
           },
@@ -360,7 +373,7 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
 type DecorateAndSignPdfOptions = {
   envelope: Pick<Envelope, 'id' | 'title' | 'useLegacyFieldInsertion' | 'internalVersion'>;
   envelopeItem: EnvelopeItem & { documentData: DocumentData };
-  envelopeItemFields: Field[];
+  envelopeItemFields: FieldWithSignature[];
   isRejected: boolean;
   rejectionReason: string;
   pdfData: Uint8Array;
@@ -485,6 +498,21 @@ const decorateAndSignPdf = async ({
   // Re-flatten the form to handle our checkbox and radio fields that
   // create native arcoFields
   pdfDoc.flattenAll();
+
+  // Embed recipient-uploaded attachment files into the PDF. Must happen before
+  // signPdf so the files are covered by the signature's byte range. The
+  // secondaryId prefix keeps names unique; overwrite keeps resealing idempotent.
+  for (const field of envelopeItemFields) {
+    if (field.type === FieldType.ATTACHMENT && field.inserted && field.fieldUpload?.documentData) {
+      const fileBytes = await getFileServerSide(field.fieldUpload.documentData);
+
+      pdfDoc.addAttachment(`${field.secondaryId}_${field.fieldUpload.fileName}`, fileBytes, {
+        description: `File uploaded by a recipient during signing`,
+        mimeType: field.fieldUpload.mimeType,
+        overwrite: true,
+      });
+    }
+  }
 
   pdfDoc = await PDF.load(await pdfDoc.save({ useXRefStream: true }));
 

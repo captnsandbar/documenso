@@ -185,6 +185,17 @@ export const ZSignatureFieldMeta = ZBaseFieldMeta.extend({
 
 export type TSignatureFieldMeta = z.infer<typeof ZSignatureFieldMeta>;
 
+export const ZAttachmentFieldMeta = ZBaseFieldMeta.extend({
+  type: z.literal('attachment'),
+  fileTypes: z
+    .enum(['any', 'images'])
+    .optional()
+    .default('any')
+    .describe('The kind of files the recipient is allowed to upload'),
+});
+
+export type TAttachmentFieldMeta = z.infer<typeof ZAttachmentFieldMeta>;
+
 export const ZFieldMetaNotOptionalSchema = z.discriminatedUnion('type', [
   ZSignatureFieldMeta,
   ZInitialsFieldMeta,
@@ -196,6 +207,7 @@ export const ZFieldMetaNotOptionalSchema = z.discriminatedUnion('type', [
   ZRadioFieldMeta,
   ZCheckboxFieldMeta,
   ZDropdownFieldMeta,
+  ZAttachmentFieldMeta,
 ]);
 
 export type TFieldMetaNotOptionalSchema = z.infer<typeof ZFieldMetaNotOptionalSchema>;
@@ -300,6 +312,10 @@ export const ZFieldAndMetaSchema = z.discriminatedUnion('type', [
     type: z.literal(FieldType.DROPDOWN),
     fieldMeta: ZDropdownFieldMeta.optional(),
   }),
+  z.object({
+    type: z.literal(FieldType.ATTACHMENT),
+    fieldMeta: ZAttachmentFieldMeta.optional(),
+  }),
 ]);
 
 export type TFieldAndMeta = z.infer<typeof ZFieldAndMetaSchema>;
@@ -386,6 +402,13 @@ export const FIELD_SIGNATURE_META_DEFAULT_VALUES: TSignatureFieldMeta = {
   overflow: DEFAULT_SIGNATURE_OVERFLOW_MODE,
 };
 
+export const FIELD_ATTACHMENT_META_DEFAULT_VALUES: TAttachmentFieldMeta = {
+  type: 'attachment',
+  label: '',
+  required: true,
+  fileTypes: 'any',
+};
+
 export const FIELD_META_DEFAULT_VALUES: Record<FieldType, TFieldMetaSchema> = {
   [FieldType.SIGNATURE]: FIELD_SIGNATURE_META_DEFAULT_VALUES,
   [FieldType.FREE_SIGNATURE]: undefined,
@@ -398,6 +421,7 @@ export const FIELD_META_DEFAULT_VALUES: Record<FieldType, TFieldMetaSchema> = {
   [FieldType.RADIO]: FIELD_RADIO_META_DEFAULT_VALUES,
   [FieldType.CHECKBOX]: FIELD_CHECKBOX_META_DEFAULT_VALUES,
   [FieldType.DROPDOWN]: FIELD_DROPDOWN_META_DEFAULT_VALUES,
+  [FieldType.ATTACHMENT]: FIELD_ATTACHMENT_META_DEFAULT_VALUES,
 } as const;
 
 export const ZEnvelopeFieldAndMetaSchema = z.discriminatedUnion('type', [
@@ -444,6 +468,10 @@ export const ZEnvelopeFieldAndMetaSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal(FieldType.DROPDOWN),
     fieldMeta: ZDropdownFieldMeta.optional().default(FIELD_DROPDOWN_META_DEFAULT_VALUES),
+  }),
+  z.object({
+    type: z.literal(FieldType.ATTACHMENT),
+    fieldMeta: ZAttachmentFieldMeta.optional().default(FIELD_ATTACHMENT_META_DEFAULT_VALUES),
   }),
 ]);
 

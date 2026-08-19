@@ -194,6 +194,7 @@ const handlePendingFileRequest = async ({
     },
     include: {
       signature: true,
+      fieldUpload: true,
     },
     orderBy: {
       id: 'asc',

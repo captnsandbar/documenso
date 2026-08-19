@@ -40,6 +40,7 @@ import { saveAsTemplateRoute } from './save-as-template';
 import { setEnvelopeFieldsRoute } from './set-envelope-fields';
 import { setEnvelopeRecipientsRoute } from './set-envelope-recipients';
 import { signEnvelopeFieldRoute } from './sign-envelope-field';
+import { signEnvelopeFieldAttachmentRoute } from './sign-envelope-field-attachment';
 import { signingStatusEnvelopeRoute } from './signing-status-envelope';
 import { updateEnvelopeRoute } from './update-envelope';
 import { updateEnvelopeItemsRoute } from './update-envelope-items';
@@ -83,6 +84,7 @@ export const envelopeRouter = router({
     delete: deleteEnvelopeFieldRoute,
     set: setEnvelopeFieldsRoute,
     sign: signEnvelopeFieldRoute,
+    signAttachment: signEnvelopeFieldAttachmentRoute,
   },
   find: findEnvelopesRoute,
   auditLog: {

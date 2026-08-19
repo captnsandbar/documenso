@@ -19,6 +19,10 @@ export type FieldToRender = Pick<
   isValidating?: boolean;
   fieldMeta?: TFieldMetaSchema | null;
   signature?: Pick<Signature, 'signatureImageAsBase64' | 'typedSignature'> | null;
+  fieldUpload?: {
+    fileName: string;
+    previewImageAsBase64?: string | null;
+  } | null;
 };
 
 /**

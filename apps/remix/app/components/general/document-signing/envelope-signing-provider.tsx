@@ -48,6 +48,12 @@ export type EnvelopeSigningContextValue = {
     _value: TSignEnvelopeFieldValue,
     authOptions?: TRecipientActionAuth,
   ) => Promise<Pick<Field, 'id' | 'inserted'>>;
+
+  signFieldAttachment: (
+    _fieldId: number,
+    _file: File,
+    _previewImageAsBase64?: string,
+  ) => Promise<Pick<Field, 'id' | 'inserted'>>;
 };
 
 const EnvelopeSigningContext = createContext<EnvelopeSigningContextValue | null>(null);
@@ -139,6 +145,32 @@ export const EnvelopeSigningProvider = ({
   const isDirectTemplate = envelope.type === EnvelopeType.TEMPLATE;
 
   const { mutateAsync: signEnvelopeField } = trpc.envelope.field.sign.useMutation({
+    ...DO_NOT_INVALIDATE_QUERY_ON_MUTATION,
+    onSuccess: (data) => {
+      setEnvelopeData((prev) => ({
+        ...prev,
+        envelope: {
+          ...prev.envelope,
+          recipients: prev.envelope.recipients.map((recipient) =>
+            recipient.id === data.signedField.recipientId
+              ? {
+                  ...recipient,
+                  fields: recipient.fields.map((field) =>
+                    field.id === data.signedField.id ? data.signedField : field,
+                  ),
+                }
+              : recipient,
+          ),
+        },
+        recipient: {
+          ...prev.recipient,
+          fields: prev.recipient.fields.map((field) => (field.id === data.signedField.id ? data.signedField : field)),
+        },
+      }));
+    },
+  });
+
+  const { mutateAsync: signEnvelopeFieldAttachment } = trpc.envelope.field.signAttachment.useMutation({
     ...DO_NOT_INVALIDATE_QUERY_ON_MUTATION,
     onSuccess: (data) => {
       setEnvelopeData((prev) => ({
@@ -340,6 +372,31 @@ export const EnvelopeSigningProvider = ({
     return signedField;
   };
 
+  const signFieldAttachment = async (fieldId: number, file: File, previewImageAsBase64?: string) => {
+    // Direct templates only create the underlying document once the recipient
+    // completes signing, so there is nowhere to store the upload yet.
+    if (isDirectTemplate) {
+      throw new Error('Attachment fields are not supported in direct templates');
+    }
+
+    const formData = new FormData();
+
+    formData.append(
+      'payload',
+      JSON.stringify({
+        token: envelopeData.recipient.token,
+        fieldId,
+        previewImageAsBase64,
+      }),
+    );
+
+    formData.append('file', file);
+
+    const { signedField } = await signEnvelopeFieldAttachment(formData);
+
+    return signedField;
+  };
+
   const handleDirectTemplateFieldInsertion = (fieldId: number, fieldValue: TSignEnvelopeFieldValue) => {
     const foundField = recipient.fields.find((field) => field.id === fieldId);
 
@@ -426,6 +483,7 @@ export const EnvelopeSigningProvider = ({
         selectedAssistantRecipientFields,
 
         signField,
+        signFieldAttachment,
       }}
     >
       {children}

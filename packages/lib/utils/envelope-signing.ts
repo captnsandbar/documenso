@@ -249,5 +249,13 @@ export const extractFieldInsertionValues = ({
         inserted: true,
       };
     })
+    .with({ type: FieldType.ATTACHMENT }, () => {
+      // Attachment uploads are handled by the dedicated signAttachment mutation.
+      // A null value here means the recipient is clearing the field.
+      return {
+        customText: '',
+        inserted: false,
+      };
+    })
     .exhaustive();
 };

@@ -549,6 +549,7 @@ model DocumentData {
   data         String
   initialData  String
   envelopeItem EnvelopeItem?
+  fieldUpload  FieldUpload?
 }
 
 enum DocumentDistributionMethod {
@@ -682,6 +683,7 @@ enum FieldType {
   RADIO
   CHECKBOX
   DROPDOWN
+  ATTACHMENT
 }
 
 /// @zod.import(["import { ZFieldMetaNotOptionalSchema } from '@documenso/lib/types/field-meta';"])
@@ -703,6 +705,7 @@ model Field {
   envelope       Envelope     @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
   recipient      Recipient    @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   signature      Signature?
+  fieldUpload    FieldUpload?
   fieldMeta      Json? /// [FieldMeta] @zod.custom.use(ZFieldMetaNotOptionalSchema)
 
   @@index([envelopeId])
@@ -722,6 +725,26 @@ model Signature {
   field     Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   @@index([recipientId])
+}
+
+/// A file uploaded by a recipient into an ATTACHMENT field. The original bytes
+/// live in a DocumentData row (database or S3 transport); the optional preview
+/// is a downscaled data-URI used to draw image uploads into the field box.
+model FieldUpload {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  fieldId Int   @unique
+  field   Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  fileName String
+  mimeType String
+  fileSize Int
+
+  previewImageAsBase64 String?
+
+  documentDataId String       @unique
+  documentData   DocumentData @relation(fields: [documentDataId], references: [id], onDelete: Cascade)
 }
 
 /// Per-recipient cached credential metadata for the configured Cloud Signature

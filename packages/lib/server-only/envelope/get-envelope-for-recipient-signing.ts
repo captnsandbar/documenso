@@ -2,6 +2,7 @@ import { prisma } from '@documenso/prisma';
 import DocumentMetaSchema from '@documenso/prisma/generated/zod/modelSchema/DocumentMetaSchema';
 import EnvelopeItemSchema from '@documenso/prisma/generated/zod/modelSchema/EnvelopeItemSchema';
 import EnvelopeSchema from '@documenso/prisma/generated/zod/modelSchema/EnvelopeSchema';
+import FieldUploadSchema from '@documenso/prisma/generated/zod/modelSchema/FieldUploadSchema';
 import SignatureSchema from '@documenso/prisma/generated/zod/modelSchema/SignatureSchema';
 import TeamSchema from '@documenso/prisma/generated/zod/modelSchema/TeamSchema';
 import UserSchema from '@documenso/prisma/generated/zod/modelSchema/UserSchema';
@@ -71,6 +72,13 @@ export const ZEnvelopeForSigningResponse = z.object({
             signatureImageAsBase64: true,
             typedSignature: true,
           }).nullish(),
+          fieldUpload: FieldUploadSchema.pick({
+            id: true,
+            fileName: true,
+            mimeType: true,
+            fileSize: true,
+            previewImageAsBase64: true,
+          }).nullish(),
         }).array(),
       })
       .array(),
@@ -121,6 +129,13 @@ export const ZEnvelopeForSigningResponse = z.object({
     })
       .extend({
         signature: SignatureSchema.nullish(),
+        fieldUpload: FieldUploadSchema.pick({
+          id: true,
+          fileName: true,
+          mimeType: true,
+          fileSize: true,
+          previewImageAsBase64: true,
+        }).nullish(),
       })
       .array(),
   }),
@@ -191,6 +206,17 @@ export const getEnvelopeForRecipientSigning = async ({
           fields: {
             include: {
               signature: true,
+              // documentDataId is intentionally excluded so storage keys are
+              // never exposed to recipients.
+              fieldUpload: {
+                select: {
+                  id: true,
+                  fileName: true,
+                  mimeType: true,
+                  fileSize: true,
+                  previewImageAsBase64: true,
+                },
+              },
             },
           },
         },

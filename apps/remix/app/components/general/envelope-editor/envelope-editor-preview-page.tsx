@@ -195,6 +195,14 @@ export const EnvelopeEditorPreviewPage = () => {
               customText: '',
             };
           })
+          .with({ type: FieldType.ATTACHMENT }, () => {
+            return {
+              customText: '',
+              fieldUpload: {
+                fileName: faker.system.commonFileName('pdf'),
+              },
+            };
+          })
           .exhaustive(),
       };
     });

@@ -20,6 +20,7 @@ import { Link } from 'react-router';
 import { match } from 'ts-pattern';
 
 import { EnvelopeDownloadDialog } from '~/components/dialogs/envelope-download-dialog';
+import { SignFieldAttachmentDialog } from '~/components/dialogs/sign-field-attachment-dialog';
 import { SignFieldCheckboxDialog } from '~/components/dialogs/sign-field-checkbox-dialog';
 import { SignFieldDropdownDialog } from '~/components/dialogs/sign-field-dropdown-dialog';
 import { SignFieldEmailDialog } from '~/components/dialogs/sign-field-email-dialog';
@@ -89,6 +90,7 @@ export const DocumentSigningPageViewV2 = () => {
       <SignFieldDropdownDialog.Root />
       <SignFieldSignatureDialog.Root />
       <SignFieldCheckboxDialog.Root />
+      <SignFieldAttachmentDialog.Root />
 
       <EnvelopeSignerHeader />
 

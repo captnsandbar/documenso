@@ -45,6 +45,10 @@ export const ZSignEnvelopeFieldValue = z.discriminatedUnion('type', [
     type: z.literal(FieldType.SIGNATURE),
     value: z.string().nullable(),
   }),
+  z.object({
+    type: z.literal(FieldType.ATTACHMENT),
+    value: z.null().describe('Attachment fields can only be cleared here. Uploads go through field.signAttachment.'),
+  }),
 ]);
 
 export const ZSignEnvelopeFieldRequestSchema = z.object({

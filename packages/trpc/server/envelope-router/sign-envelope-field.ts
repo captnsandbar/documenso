@@ -153,6 +153,12 @@ export const signEnvelopeFieldRoute = procedure
           },
         });
 
+        await tx.fieldUpload.deleteMany({
+          where: {
+            fieldId: field.id,
+          },
+        });
+
         if (recipient.role !== RecipientRole.ASSISTANT) {
           await tx.documentAuditLog.create({
             data: createDocumentAuditLogData({
@@ -270,6 +276,10 @@ export const signEnvelopeFieldRoute = procedure
                 data: updatedField.customText,
               }))
               .with(FieldType.NUMBER, FieldType.RADIO, FieldType.CHECKBOX, FieldType.DROPDOWN, (type) => ({
+                type,
+                data: updatedField.customText,
+              }))
+              .with(FieldType.ATTACHMENT, (type) => ({
                 type,
                 data: updatedField.customText,
               }))
