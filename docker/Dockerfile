@@ -86,6 +86,10 @@ COPY turbo.json turbo.json
 
 RUN npm install -g "turbo@^2.10.0"
 
+# Tarball uploads from Windows hosts (e.g. `railway up`) lose the executable
+# bit on shell scripts, breaking the remix build step.
+RUN chmod +x apps/remix/.bin/*.sh
+
 RUN turbo run build --filter=@documenso/remix...
 
 ###########################
