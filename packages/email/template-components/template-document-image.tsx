@@ -1,28 +1,12 @@
-import { Column, Img, Row, Section } from '../components';
-
 export interface TemplateDocumentImageProps {
   assetBaseUrl: string;
   className?: string;
 }
 
-export const TemplateDocumentImage = ({ assetBaseUrl, className }: TemplateDocumentImageProps) => {
-  const getAssetUrl = (path: string) => {
-    return new URL(path, assetBaseUrl).toString();
-  };
-
-  return (
-    <Section className={className}>
-      <Row className="table-fixed">
-        <Column />
-
-        <Column>
-          <Img className="mx-auto h-42" src={getAssetUrl('/static/document.png')} alt="Documenso" />
-        </Column>
-
-        <Column />
-      </Row>
-    </Section>
-  );
+export const TemplateDocumentImage = (_props: TemplateDocumentImageProps) => {
+  // Intentionally renders nothing: emails use a minimal open layout
+  // (logo, headline, body, button) without the hero document graphic.
+  return null;
 };
 
 export default TemplateDocumentImage;

@@ -18,7 +18,7 @@ export const TemplateFooter = ({ isDocument = true, reportUrl }: TemplateFooterP
   return (
     <Section>
       {reportUrl && (
-        <Text className="my-4 text-base text-muted-foreground">
+        <Text className="my-4 text-muted-foreground text-sm">
           <Trans>
             Did not expect this email?{' '}
             <Link className="text-primary" href={reportUrl}>
@@ -30,7 +30,7 @@ export const TemplateFooter = ({ isDocument = true, reportUrl }: TemplateFooterP
       )}
 
       {isDocument && !branding.brandingHidePoweredBy && (
-        <Text className="my-4 text-base text-muted-foreground">
+        <Text className="my-4 text-muted-foreground text-sm">
           <Trans>
             This document was sent using{' '}
             <Link className="text-primary" href="https://documen.so/mail-footer">

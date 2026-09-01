@@ -38,15 +38,15 @@ export const TemplateDocumentCompleted = ({
           </Column>
         </Section>
 
-        <Text className="mb-0 text-center font-semibold text-foreground text-lg">
+        <Text className="mt-6 mb-0 text-left font-bold text-2xl text-foreground">
           {customBody || <Trans>“{documentName}” was signed by all signers</Trans>}
         </Text>
 
-        <Text className="my-1 text-center text-base text-muted-foreground">
+        <Text className="mt-4 mb-0 text-left text-base text-muted-foreground">
           <Trans>Continue by downloading the document.</Trans>
         </Text>
 
-        <Section className="mt-8 mb-6 text-center">
+        <Section className="mt-8 mb-6 text-left">
           <Button
             className="rounded-lg border border-border border-solid px-4 py-2 text-center font-medium text-foreground text-sm no-underline"
             href={downloadLink}
