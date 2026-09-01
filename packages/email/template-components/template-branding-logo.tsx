@@ -14,7 +14,7 @@ export type TemplateBrandingLogoProps = {
  *   If a safe (http/https) Brand Website is configured, the logo links to it.
  * - Otherwise the Documenso logo is shown.
  */
-export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4 h-6' }: TemplateBrandingLogoProps) => {
+export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4 h-14 w-auto' }: TemplateBrandingLogoProps) => {
   const branding = useBranding();
 
   const hasCustomBrandingLogo = branding.brandingEnabled && Boolean(branding.brandingLogo);

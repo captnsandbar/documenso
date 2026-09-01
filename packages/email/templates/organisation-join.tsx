@@ -36,7 +36,7 @@ export const OrganisationJoinEmailTemplate = ({
 
         <Section className="bg-background text-muted-foreground">
           <Container className="mx-auto my-5 max-w-xl px-4 py-5">
-            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4 h-6 p-2" />
+            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4 h-14 w-auto" />
 
             <Section>
               <TemplateImage className="mx-auto" assetBaseUrl={assetBaseUrl} staticAsset="add-user.png" />
