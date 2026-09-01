@@ -1,11 +1,10 @@
 import { RECIPIENT_ROLES_DESCRIPTION } from '@documenso/lib/constants/recipient-roles';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
-import { Trans } from '@lingui/react/macro';
 import type { RecipientRole } from '@prisma/client';
 import { OrganisationType } from '@prisma/client';
 
-import { Body, Container, Head, Hr, Html, Link, Preview, Section, Text } from '../components';
+import { Body, Container, Head, Html, Preview, Section, Text } from '../components';
 import { TemplateBrandingLogo } from '../template-components/template-branding-logo';
 import { TemplateCustomMessageBody } from '../template-components/template-custom-message-body';
 import type { TemplateDocumentInviteProps } from '../template-components/template-document-invite';
@@ -61,7 +60,7 @@ export const DocumentInviteEmailTemplate = ({
         <Preview>{_(previewText)}</Preview>
 
         <Section>
-          <Container className="mx-auto my-5 max-w-xl px-4 py-5">
+          <Container className="mx-auto" style={{ maxWidth: '560px', padding: '24px 20px' }}>
             <Section>
               <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />
 
@@ -77,38 +76,15 @@ export const DocumentInviteEmailTemplate = ({
                 teamName={teamName}
                 includeSenderDetails={includeSenderDetails}
               />
-            </Section>
-          </Container>
 
-          <Container className="mx-auto mt-12 max-w-xl">
-            <Section>
-              {organisationType === OrganisationType.PERSONAL && (
-                <Text className="my-4 font-semibold text-base">
-                  <Trans>
-                    {inviterName}{' '}
-                    <Link className="font-normal text-muted-foreground" href={`mailto:${inviterEmail}`}>
-                      ({inviterEmail})
-                    </Link>
-                  </Trans>
+              {customBody && (
+                <Text style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151', margin: '16px 0 0' }}>
+                  <TemplateCustomMessageBody text={customBody} />
                 </Text>
               )}
 
-              <Text className="mt-2 text-base text-muted-foreground">
-                {customBody ? (
-                  <TemplateCustomMessageBody text={customBody} />
-                ) : (
-                  <Trans>
-                    {inviterName} has invited you to {action} the document "{documentName}".
-                  </Trans>
-                )}
-              </Text>
+              <TemplateFooter reportUrl={reportUrl} />
             </Section>
-          </Container>
-
-          <Hr className="mx-auto mt-12 max-w-xl" />
-
-          <Container className="mx-auto max-w-xl">
-            <TemplateFooter reportUrl={reportUrl} />
           </Container>
         </Section>
       </Body>

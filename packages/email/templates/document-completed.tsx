@@ -30,8 +30,8 @@ export const DocumentCompletedEmailTemplate = ({
         <Preview>{_(previewText)}</Preview>
 
         <Section className="bg-background">
-          <Container className="mx-auto my-5 max-w-xl px-4 py-5">
-            <Section className="p-2">
+          <Container className="mx-auto" style={{ maxWidth: '560px', padding: '24px 20px' }}>
+            <Section>
               <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />
 
               <TemplateDocumentCompleted
@@ -40,11 +40,9 @@ export const DocumentCompletedEmailTemplate = ({
                 assetBaseUrl={assetBaseUrl}
                 customBody={customBody}
               />
-            </Section>
-          </Container>
 
-          <Container className="mx-auto max-w-xl">
-            <TemplateFooter reportUrl={reportUrl} />
+              <TemplateFooter reportUrl={reportUrl} />
+            </Section>
           </Container>
         </Section>
       </Body>

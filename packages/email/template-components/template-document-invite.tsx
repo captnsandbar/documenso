@@ -40,7 +40,16 @@ export const TemplateDocumentInvite = ({
       <TemplateDocumentImage className="mt-6" assetBaseUrl={assetBaseUrl} />
 
       <Section>
-        <Text className="mt-6 mb-0 text-left font-bold text-2xl text-foreground">
+        <Text
+          className="text-left"
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#111827',
+            lineHeight: '1.3',
+            margin: '32px 0 0',
+          }}
+        >
           {match({ selfSigner, organisationType, includeSenderDetails, teamName })
             .with({ selfSigner: true }, () => (
               <Trans>
@@ -75,7 +84,15 @@ export const TemplateDocumentInvite = ({
             ))}
         </Text>
 
-        <Text className="mt-4 mb-0 text-left text-base text-muted-foreground">
+        <Text
+          className="text-left"
+          style={{
+            fontSize: '16px',
+            lineHeight: '1.6',
+            color: '#374151',
+            margin: '16px 0 0',
+          }}
+        >
           {match(role)
             .with(RecipientRole.SIGNER, () => <Trans>Continue by signing the document.</Trans>)
             .with(RecipientRole.VIEWER, () => <Trans>Continue by viewing the document.</Trans>)
@@ -85,10 +102,19 @@ export const TemplateDocumentInvite = ({
             .exhaustive()}
         </Text>
 
-        <Section className="mt-8 mb-6 text-left">
+        <Section className="text-left" style={{ margin: '24px 0' }}>
           <Button
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-center font-semibold text-sm no-underline"
-            style={{ color: '#ffffff', fontSize: '14px' }}
+            className="no-underline"
+            style={{
+              display: 'inline-block',
+              backgroundColor: '#00b271',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '14px',
+              textDecoration: 'none',
+            }}
             href={signDocumentLink}
           >
             {match(role)

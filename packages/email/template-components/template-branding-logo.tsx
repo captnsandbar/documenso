@@ -16,9 +16,15 @@ export type TemplateBrandingLogoProps = {
  */
 // Pixel-based sizing (attribute + px styles): Outlook's Word renderer
 // ignores rem units, so a rem height renders the image at natural size.
-const LOGO_WIDTH_PX = 145;
+const LOGO_WIDTH_PX = 150;
 
-const logoStyle = { width: `${LOGO_WIDTH_PX}px`, maxWidth: `${LOGO_WIDTH_PX}px`, height: 'auto' } as const;
+const logoStyle = {
+  width: `${LOGO_WIDTH_PX}px`,
+  maxWidth: `${LOGO_WIDTH_PX}px`,
+  height: 'auto',
+  display: 'block',
+  marginBottom: '0px',
+} as const;
 
 export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4' }: TemplateBrandingLogoProps) => {
   const branding = useBranding();
