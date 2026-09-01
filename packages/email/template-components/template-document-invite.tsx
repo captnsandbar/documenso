@@ -87,7 +87,8 @@ export const TemplateDocumentInvite = ({
 
         <Section className="mt-8 mb-6 text-left">
           <Button
-            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-center font-semibold text-primary-foreground text-sm no-underline"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-center font-semibold text-sm no-underline"
+            style={{ color: '#ffffff', fontSize: '14px' }}
             href={signDocumentLink}
           >
             {match(role)

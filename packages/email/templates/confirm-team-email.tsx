@@ -35,7 +35,7 @@ export const ConfirmTeamEmailTemplate = ({
 
         <Section className="bg-background">
           <Container className="mx-auto my-5 max-w-xl px-4 py-5">
-            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4 h-14 w-auto" />
+            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />
 
             <Section>
               <TemplateImage className="mx-auto" assetBaseUrl={assetBaseUrl} staticAsset="mail-open.png" />

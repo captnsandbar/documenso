@@ -14,7 +14,13 @@ export type TemplateBrandingLogoProps = {
  *   If a safe (http/https) Brand Website is configured, the logo links to it.
  * - Otherwise the Documenso logo is shown.
  */
-export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4 h-14 w-auto' }: TemplateBrandingLogoProps) => {
+// Pixel-based sizing (attribute + px styles): Outlook's Word renderer
+// ignores rem units, so a rem height renders the image at natural size.
+const LOGO_WIDTH_PX = 145;
+
+const logoStyle = { width: `${LOGO_WIDTH_PX}px`, maxWidth: `${LOGO_WIDTH_PX}px`, height: 'auto' } as const;
+
+export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4' }: TemplateBrandingLogoProps) => {
   const branding = useBranding();
 
   const hasCustomBrandingLogo = branding.brandingEnabled && Boolean(branding.brandingLogo);
@@ -22,10 +28,20 @@ export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4 h-14 w-au
   if (!hasCustomBrandingLogo) {
     const documensoLogoUrl = new URL('/static/logo.png', assetBaseUrl).toString();
 
-    return <Img src={documensoLogoUrl} alt="Documenso Logo" className={className} />;
+    return (
+      <Img src={documensoLogoUrl} alt="Documenso Logo" width={LOGO_WIDTH_PX} className={className} style={logoStyle} />
+    );
   }
 
-  const brandingLogo = <Img src={branding.brandingLogo} alt="Branding Logo" className={className} />;
+  const brandingLogo = (
+    <Img
+      src={branding.brandingLogo}
+      alt="Branding Logo"
+      width={LOGO_WIDTH_PX}
+      className={className}
+      style={logoStyle}
+    />
+  );
 
   const safeBrandingUrl = getSafeBrandingUrl(branding.brandingUrl);
 

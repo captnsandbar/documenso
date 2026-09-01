@@ -34,7 +34,7 @@ export const OrganisationLimitAlertEmailTemplate = ({
 
         <Section className="bg-background text-muted-foreground">
           <Container className="mx-auto my-5 max-w-xl px-4 py-5">
-            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4 h-14 w-auto" />
+            <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />
 
             <Section className="p-2 text-muted-foreground">
               <Text className="text-center font-medium text-foreground text-lg">
