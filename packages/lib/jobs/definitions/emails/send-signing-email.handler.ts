@@ -145,17 +145,10 @@ export const run = async ({ payload, io }: { payload: TSendSigningEmailJobDefini
 
   if (organisationType === OrganisationType.ORGANISATION) {
     emailSubject = i18n._(msg`${team.name} invited you to ${recipientActionVerb} a document`);
+    // Only a genuinely custom message is passed through — no synthesized
+    // fallback: the email template already carries the invite headline, so
+    // the fallback only duplicated it below the button.
     emailMessage = customEmail?.message ?? '';
-
-    if (!emailMessage) {
-      const inviterName = user.name || '';
-
-      emailMessage = i18n._(
-        settings.includeSenderDetails
-          ? msg`${inviterName} on behalf of "${team.name}" has invited you to ${recipientActionVerb} the document "${envelope.title}".`
-          : msg`${team.name} has invited you to ${recipientActionVerb} the document "${envelope.title}".`,
-      );
-    }
   }
 
   const customEmailTemplate = {
