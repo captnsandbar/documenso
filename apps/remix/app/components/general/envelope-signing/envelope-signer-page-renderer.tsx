@@ -129,17 +129,23 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
    * page.
    */
   const localPageOtherRecipientFields = useMemo((): GenericLocalField[] => {
-    const signedRecipients = envelope.recipients.filter(
-      (recipient) => recipient.signingStatus === SigningStatus.SIGNED,
-    );
+    // Fields of recipients who have SIGNED are shown as-is. Read-only fields
+    // that were already inserted (system-prefilled values such as the order
+    // number, cart and dates auto-inserted at distribution) are shown for
+    // EVERY other recipient regardless of their signing status — they are
+    // not that signer's input, and hiding them left co-signers looking at
+    // blank boxes until the primary signer got around to signing.
+    const otherRecipients = envelope.recipients.filter((recipient) => recipient.id !== envelopeData.recipient.id);
 
-    return signedRecipients.flatMap((recipient) => {
+    return otherRecipients.flatMap((recipient) => {
+      const isSigned = recipient.signingStatus === SigningStatus.SIGNED;
+
       return recipient.fields
         .filter(
           (field) =>
             field.page === pageNumber &&
             field.envelopeItemId === currentEnvelopeItem?.id &&
-            (field.inserted || field.fieldMeta?.readOnly),
+            (isSigned ? field.inserted || field.fieldMeta?.readOnly : field.inserted && field.fieldMeta?.readOnly),
         )
         .map((field) => ({
           ...field,
@@ -152,7 +158,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
           },
         }));
     });
-  }, [envelope.recipients, pageNumber, currentEnvelopeItem?.id]);
+  }, [envelope.recipients, envelopeData.recipient.id, pageNumber, currentEnvelopeItem?.id]);
 
   const unsafeRenderFieldOnLayer = (unparsedField: LocalSignerField, fieldCanvasStyleCache: FieldCanvasStyleCache) => {
     if (!pageLayer.current) {
