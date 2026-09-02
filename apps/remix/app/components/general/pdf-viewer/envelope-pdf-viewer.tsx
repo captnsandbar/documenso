@@ -16,7 +16,7 @@ export type EnvelopePdfViewerProps = {
   errorMessage: { title: MessageDescriptor; description: MessageDescriptor } | null;
 } & Omit<PDFViewerProps, 'data'>;
 
-export const EnvelopePdfViewer = ({ errorMessage, className, ...props }: EnvelopePdfViewerProps) => {
+export const EnvelopePdfViewer = ({ errorMessage, className, zoom, ...props }: EnvelopePdfViewerProps) => {
   const { t } = useLingui();
 
   const $el = useRef<HTMLDivElement>(null);
@@ -50,6 +50,7 @@ export const EnvelopePdfViewer = ({ errorMessage, className, ...props }: Envelop
       {...props}
       className={cn('h-full w-full max-w-[800px]', className)}
       data={currentEnvelopeItem.data}
+      zoom={zoom}
     />
   );
 };

@@ -4,7 +4,7 @@ import type { Field } from '@prisma/client';
 import { TooltipArrow } from '@radix-ui/react-tooltip';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cn } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../primitives/tooltip';
@@ -25,12 +25,27 @@ interface EnvelopeFieldToolTipProps extends VariantProps<typeof tooltipVariants>
   children: React.ReactNode;
   className?: string;
   field: Pick<Field, 'id' | 'inserted' | 'fieldMeta' | 'positionX' | 'positionY' | 'width' | 'height' | 'page'>;
+
+  /**
+   * Scroll the tooltip into the centre of the viewport once, after it has been
+   * positioned. Used on phones to walk the signer from field to field.
+   */
+  scrollIntoViewOnMount?: boolean;
 }
 
 /**
  * Renders a tooltip for a given field.
  */
-export function EnvelopeFieldToolTip({ children, color, className = '', field }: EnvelopeFieldToolTipProps) {
+export function EnvelopeFieldToolTip({
+  children,
+  color,
+  className = '',
+  field,
+  scrollIntoViewOnMount = false,
+}: EnvelopeFieldToolTipProps) {
+  const $tooltip = useRef<HTMLDivElement>(null);
+  const hasScrolledRef = useRef(false);
+
   const [coords, setCoords] = useState({
     x: 0,
     y: 0,
@@ -78,6 +93,16 @@ export function EnvelopeFieldToolTip({ children, color, className = '', field }:
   }, [calculateCoords]);
 
   useEffect(() => {
+    if (!scrollIntoViewOnMount || hasScrolledRef.current || coords.width === 0) {
+      return;
+    }
+
+    hasScrolledRef.current = true;
+
+    $tooltip.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  }, [scrollIntoViewOnMount, coords.width]);
+
+  useEffect(() => {
     const $page = document.querySelector<HTMLElement>(`${PDF_VIEWER_PAGE_SELECTOR}[data-page-number="${field.page}"]`);
 
     if (!$page) {
@@ -98,6 +123,7 @@ export function EnvelopeFieldToolTip({ children, color, className = '', field }:
   return (
     <div
       id="field-tooltip"
+      ref={$tooltip}
       className={cn('pointer-events-none absolute')}
       style={{
         top: `${coords.y}px`,

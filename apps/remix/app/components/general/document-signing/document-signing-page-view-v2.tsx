@@ -1,3 +1,4 @@
+import { useWindowSize } from '@documenso/lib/client-only/hooks/use-window-size';
 import { useCurrentEnvelopeRender } from '@documenso/lib/client-only/providers/envelope-render-provider';
 import { PDF_VIEWER_ERROR_MESSAGES } from '@documenso/lib/constants/pdf-viewer-i18n';
 import { mapSecondaryIdToDocumentId } from '@documenso/lib/utils/envelope';
@@ -66,6 +67,12 @@ export const DocumentSigningPageViewV2 = () => {
 
   const { t } = useLingui();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Phones: render pages larger than the wrapper (horizontal pan) so fields are
+  // legible and tappable. Width is 0 on the first render, so gate on it.
+  const { width: windowWidth } = useWindowSize();
+  const isNarrowViewport = windowWidth > 0 && windowWidth < 640;
+  const [isMobileZoomEnabled, setIsMobileZoomEnabled] = useState(true);
 
   /**
    * The total remaining fields remaining for the current recipient or selected assistant recipient.
@@ -269,6 +276,7 @@ export const DocumentSigningPageViewV2 = () => {
                   customPageRenderer={EnvelopeSignerPageRenderer}
                   scrollParentRef={scrollableContainerRef}
                   errorMessage={PDF_VIEWER_ERROR_MESSAGES.signing}
+                  zoom={isNarrowViewport && isMobileZoomEnabled ? 1.75 : 1}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-32">
@@ -280,7 +288,10 @@ export const DocumentSigningPageViewV2 = () => {
 
               {/* Mobile widget - Additional padding to allow users to scroll */}
               <div className="block pb-28 lg:hidden">
-                <DocumentSigningMobileWidget />
+                <DocumentSigningMobileWidget
+                  isZoomed={isMobileZoomEnabled}
+                  onToggleZoom={() => setIsMobileZoomEnabled((value) => !value)}
+                />
               </div>
 
               {!hidePoweredBy && (

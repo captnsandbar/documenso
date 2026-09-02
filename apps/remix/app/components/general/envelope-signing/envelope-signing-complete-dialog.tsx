@@ -72,7 +72,7 @@ export const EnvelopeSignerCompleteDialog = () => {
         const fieldTooltip = document.querySelector(`#field-tooltip`);
 
         if (fieldTooltip) {
-          fieldTooltip.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          fieldTooltip.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         } else {
           // Tooltip not in DOM (page virtualized away) — signal the PDF viewer
           // to scroll to the correct page via the data attribute.

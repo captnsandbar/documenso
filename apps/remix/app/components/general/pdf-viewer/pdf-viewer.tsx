@@ -56,6 +56,12 @@ export type PDFViewerProps = {
    * for rendering fields.
    */
   customPageRenderer?: React.FunctionComponent<{ pageData: PageRenderData }>;
+
+  /**
+   * Multiplier applied to the fit-to-width scale; >1 makes pages wider than the
+   * wrapper and enables horizontal scrolling. Default 1.
+   */
+  zoom?: number;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export default function PDFViewer({
@@ -64,6 +70,7 @@ export default function PDFViewer({
   scrollParentRef,
   onDocumentLoad,
   customPageRenderer,
+  zoom = 1,
   ...props
 }: PDFViewerProps) {
   const { t } = useLingui();
@@ -182,7 +189,7 @@ export default function PDFViewer({
 
   if (!data) {
     return (
-      <div ref={$el} className={cn('h-full w-full', className)} {...props}>
+      <div ref={$el} className={cn('h-full w-full', zoom > 1 && 'overflow-x-auto', className)} {...props}>
         <p className="py-32 text-center text-muted-foreground text-sm">
           <Trans>No document found</Trans>
         </p>
@@ -191,7 +198,7 @@ export default function PDFViewer({
   }
 
   return (
-    <div ref={$el} className={cn('h-full w-full', className)} {...props}>
+    <div ref={$el} className={cn('h-full w-full', zoom > 1 && 'overflow-x-auto', className)} {...props}>
       {/* Loading State */}
       {isLoading && <PdfViewerLoadingState />}
 
@@ -207,6 +214,7 @@ export default function PDFViewer({
           pages={pages}
           pdf={pdfRef.current}
           customPageRenderer={customPageRenderer}
+          zoom={zoom}
         />
       )}
     </div>
@@ -220,6 +228,7 @@ type VirtualizedPageListProps = {
   numPages: number;
   pdf: pdfjsLib.PDFDocumentProxy;
   customPageRenderer?: React.FunctionComponent<{ pageData: PageRenderData }>;
+  zoom: number;
 };
 
 const VirtualizedPageList = ({
@@ -229,6 +238,7 @@ const VirtualizedPageList = ({
   numPages,
   pdf,
   customPageRenderer,
+  zoom,
 }: VirtualizedPageListProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -242,7 +252,7 @@ const VirtualizedPageList = ({
 
       // Calculate height based on aspect ratio and available width
       const aspectRatio = pageMeta.height / pageMeta.width;
-      const scaledHeight = width * aspectRatio;
+      const scaledHeight = width * zoom * aspectRatio;
 
       // Add 32px for the page number text and margins (my-2 = 8px * 2 + text height ~16px)
       // Add additional 2px for the top and bottom borders.
@@ -261,7 +271,7 @@ const VirtualizedPageList = ({
       data-page-count={numPages}
       style={{
         height: `${totalSize}px`,
-        width: '100%',
+        width: zoom > 1 ? constraintWidth * zoom : '100%',
         position: 'relative',
       }}
     >
@@ -271,7 +281,7 @@ const VirtualizedPageList = ({
         const pageNumber = index + 1;
 
         // Calculate scale based on constraint width
-        const scale = constraintWidth / pageMeta.width;
+        const scale = (constraintWidth * zoom) / pageMeta.width;
 
         const scaledWidth = Math.floor(pageMeta.width * scale);
         const scaledHeight = Math.floor(pageMeta.height * scale);
@@ -283,7 +293,7 @@ const VirtualizedPageList = ({
               position: 'absolute',
               top: 0,
               left: 0,
-              width: constraintWidth,
+              width: constraintWidth * zoom,
               height: `${virtualItem.size}px`,
               transform: `translateY(${virtualItem.start}px)`,
             }}

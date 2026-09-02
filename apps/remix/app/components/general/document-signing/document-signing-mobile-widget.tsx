@@ -1,9 +1,9 @@
 import { Button } from '@documenso/ui/primitives/button';
 
-import { Plural, Trans } from '@lingui/react/macro';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { RecipientRole } from '@prisma/client';
 import { motion } from 'framer-motion';
-import { LucideChevronDown, LucideChevronUp } from 'lucide-react';
+import { LucideChevronDown, LucideChevronUp, ZoomInIcon, ZoomOutIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { match } from 'ts-pattern';
 
@@ -14,7 +14,17 @@ import EnvelopeSignerForm from '../envelope-signing/envelope-signer-form';
 import { EnvelopeSignerCompleteDialog } from '../envelope-signing/envelope-signing-complete-dialog';
 import { useRequiredEnvelopeSigningContext } from './envelope-signing-provider';
 
-export const DocumentSigningMobileWidget = () => {
+export type DocumentSigningMobileWidgetProps = {
+  /**
+   * Whether the document is currently rendered at the enlarged mobile zoom.
+   * When provided together with `onToggleZoom`, a fit page / zoom in button is shown.
+   */
+  isZoomed?: boolean;
+  onToggleZoom?: () => void;
+};
+
+export const DocumentSigningMobileWidget = ({ isZoomed, onToggleZoom }: DocumentSigningMobileWidgetProps) => {
+  const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const { hidePoweredBy = true } = useEmbedSigningContext() || {};
@@ -49,6 +59,21 @@ export const DocumentSigningMobileWidget = () => {
                       <LucideChevronDown className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
                     ) : (
                       <LucideChevronUp className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                    )}
+                  </Button>
+                )}
+
+                {onToggleZoom && (
+                  <Button
+                    variant="outline"
+                    onClick={onToggleZoom}
+                    className="flex h-8 w-8 items-center justify-center sm:hidden"
+                    aria-label={isZoomed ? t`Fit page` : t`Zoom in`}
+                  >
+                    {isZoomed ? (
+                      <ZoomOutIcon className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ZoomInIcon className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
                     )}
                   </Button>
                 )}

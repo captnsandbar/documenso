@@ -1,4 +1,5 @@
 import { usePageRenderer } from '@documenso/lib/client-only/hooks/use-page-renderer';
+import { useWindowSize } from '@documenso/lib/client-only/hooks/use-window-size';
 import {
   type PageRenderData,
   useCurrentEnvelopeRender,
@@ -103,6 +104,11 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
 
   const { onFieldSigned, onFieldUnsigned } = useEmbedSigningContext() || {};
 
+  // Phones: centre the pending-field tooltip whenever it mounts so the user is
+  // walked from field to field without hunting. Width is 0 on the first render.
+  const { width: windowWidth } = useWindowSize();
+  const isNarrowViewport = windowWidth > 0 && windowWidth < 640;
+
   const { stage, pageLayer, konvaContainer, unscaledViewport } = usePageRenderer(
     ({ stage, pageLayer }) => createPageCanvas(stage, pageLayer),
     pageData,
@@ -193,6 +199,13 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
       mode: 'sign',
       fieldCanvasStyleCache,
     });
+
+    // Konva calls touchstart.preventDefault() for any listening shape, which
+    // stops the page from panning when a finger lands on a field. Fields are
+    // activated on pointerclick (below), so touches may scroll freely.
+    for (const shape of fieldGroup.find('Shape')) {
+      shape.preventDefault(false);
+    }
 
     const handleFieldGroupClick = (e: KonvaEventObject<Event>) => {
       const currentTarget = e.currentTarget as Konva.Group;
@@ -458,8 +471,17 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
         .exhaustive();
     };
 
-    fieldGroup.off('pointerdown');
-    fieldGroup.on('pointerdown', handleFieldGroupClick);
+    // pointerclick only fires when pointerdown and pointerup resolve to the same
+    // shape, so a pan (pointercancel) never opens a dialog. The touchend
+    // preventDefault suppresses the synthesized compat click that would
+    // otherwise land on the just-opened dialog.
+    fieldGroup.off('pointerclick touchend');
+    fieldGroup.on('pointerclick', handleFieldGroupClick);
+    fieldGroup.on('touchend', (e: KonvaEventObject<TouchEvent>) => {
+      if (e.evt.cancelable) {
+        e.evt.preventDefault();
+      }
+    });
   };
 
   const renderFieldOnLayer = (unparsedField: LocalSignerField, fieldCanvasStyleCache: FieldCanvasStyleCache) => {
@@ -639,6 +661,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
             key={recipientFieldsRemaining[0].id}
             field={recipientFieldsRemaining[0]}
             color="warning"
+            scrollIntoViewOnMount={isNarrowViewport}
           >
             <Trans>Click to insert field</Trans>
           </EnvelopeFieldToolTip>
@@ -654,7 +677,10 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
       ))}
 
       {/* The element Konva will inject it's canvas into. */}
-      <div className="konva-container absolute inset-0 z-10 w-full" ref={konvaContainer}></div>
+      <div
+        className="konva-container absolute inset-0 z-10 w-full touch-manipulation select-none"
+        ref={konvaContainer}
+      ></div>
     </>
   );
 };
