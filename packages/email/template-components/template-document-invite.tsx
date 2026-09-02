@@ -18,6 +18,7 @@ export interface TemplateDocumentInviteProps {
   teamName?: string;
   includeSenderDetails?: boolean;
   organisationType?: OrganisationType;
+  customBody?: string;
 }
 
 export const TemplateDocumentInvite = ({
@@ -30,6 +31,7 @@ export const TemplateDocumentInvite = ({
   teamName,
   includeSenderDetails,
   organisationType,
+  customBody,
 }: TemplateDocumentInviteProps) => {
   const { _ } = useLingui();
 
@@ -84,23 +86,44 @@ export const TemplateDocumentInvite = ({
             ))}
         </Text>
 
-        <Text
-          className="text-left"
-          style={{
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: '#374151',
-            margin: '16px 0 0',
-          }}
-        >
-          {match(role)
-            .with(RecipientRole.SIGNER, () => <Trans>Continue by signing the document.</Trans>)
-            .with(RecipientRole.VIEWER, () => <Trans>Continue by viewing the document.</Trans>)
-            .with(RecipientRole.APPROVER, () => <Trans>Continue by approving the document.</Trans>)
-            .with(RecipientRole.CC, () => '')
-            .with(RecipientRole.ASSISTANT, () => <Trans>Continue by assisting with the document.</Trans>)
-            .exhaustive()}
-        </Text>
+        {customBody ? (
+          customBody
+            .trim()
+            .replace(/\r\n?/g, '\n')
+            .split(/\n{2,}/)
+            .map((paragraph, i) => (
+              <Text
+                key={`custom-body-${i}`}
+                className="text-left"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '1.6',
+                  color: '#374151',
+                  margin: '16px 0 0',
+                }}
+              >
+                {paragraph}
+              </Text>
+            ))
+        ) : (
+          <Text
+            className="text-left"
+            style={{
+              fontSize: '16px',
+              lineHeight: '1.6',
+              color: '#374151',
+              margin: '16px 0 0',
+            }}
+          >
+            {match(role)
+              .with(RecipientRole.SIGNER, () => <Trans>Continue by signing the document.</Trans>)
+              .with(RecipientRole.VIEWER, () => <Trans>Continue by viewing the document.</Trans>)
+              .with(RecipientRole.APPROVER, () => <Trans>Continue by approving the document.</Trans>)
+              .with(RecipientRole.CC, () => '')
+              .with(RecipientRole.ASSISTANT, () => <Trans>Continue by assisting with the document.</Trans>)
+              .exhaustive()}
+          </Text>
+        )}
 
         <Section className="text-left" style={{ margin: '24px 0' }}>
           <Button

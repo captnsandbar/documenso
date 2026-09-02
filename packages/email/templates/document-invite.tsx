@@ -4,9 +4,8 @@ import { useLingui } from '@lingui/react';
 import type { RecipientRole } from '@prisma/client';
 import { OrganisationType } from '@prisma/client';
 
-import { Body, Container, Head, Html, Preview, Section, Text } from '../components';
+import { Body, Container, Head, Html, Preview, Section } from '../components';
 import { TemplateBrandingLogo } from '../template-components/template-branding-logo';
-import { TemplateCustomMessageBody } from '../template-components/template-custom-message-body';
 import type { TemplateDocumentInviteProps } from '../template-components/template-document-invite';
 import { TemplateDocumentInvite } from '../template-components/template-document-invite';
 import { TemplateFooter } from '../template-components/template-footer';
@@ -75,13 +74,8 @@ export const DocumentInviteEmailTemplate = ({
                 organisationType={organisationType}
                 teamName={teamName}
                 includeSenderDetails={includeSenderDetails}
+                customBody={customBody}
               />
-
-              {customBody && (
-                <Text style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151', margin: '16px 0 0' }}>
-                  <TemplateCustomMessageBody text={customBody} />
-                </Text>
-              )}
 
               <TemplateFooter reportUrl={reportUrl} />
             </Section>
