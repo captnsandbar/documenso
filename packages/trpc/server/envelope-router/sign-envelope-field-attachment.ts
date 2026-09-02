@@ -92,12 +92,9 @@ export const signEnvelopeFieldAttachmentRoute = procedure
 
     const { envelope } = field;
 
-    if (envelope.internalVersion !== 2) {
-      throw new AppError(AppErrorCode.NOT_FOUND, {
-        message: `Envelope ${envelope.id} is not a version 2 envelope`,
-      });
-    }
-
+    // Both the legacy (internalVersion 1) and envelope (internalVersion 2) signing
+    // pipelines upload through this route. The legacy signFieldWithToken path is
+    // JSON only and cannot carry a file, so no version guard is applied here.
     if (field.type !== FieldType.ATTACHMENT) {
       throw new AppError(AppErrorCode.INVALID_REQUEST, {
         message: `Field ${fieldId} is not an attachment field`,

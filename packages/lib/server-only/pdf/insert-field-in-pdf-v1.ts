@@ -348,6 +348,98 @@ export const insertFieldInPDFV1 = async (pdf: PDFDocument, field: FieldWithSigna
         }
       }
     })
+    .with({ type: FieldType.ATTACHMENT }, async (field) => {
+      const image = await embedAttachmentPreview(pdf, field.fieldUpload?.previewImageAsBase64 ?? '');
+
+      if (image) {
+        let imageWidth = image.width;
+        let imageHeight = image.height;
+
+        const scalingFactor = Math.min(fieldWidth / imageWidth, fieldHeight / imageHeight, 1);
+
+        imageWidth = imageWidth * scalingFactor;
+        imageHeight = imageHeight * scalingFactor;
+
+        let imageX = fieldX + (fieldWidth - imageWidth) / 2;
+        let imageY = fieldY + (fieldHeight - imageHeight) / 2;
+
+        // Invert the Y axis since PDFs use a bottom-left coordinate system
+        imageY = pageHeight - imageY - imageHeight;
+
+        if (pageRotationInDegrees !== 0) {
+          const adjustedPosition = adjustPositionForRotation(
+            pageWidth,
+            pageHeight,
+            imageX,
+            imageY,
+            pageRotationInDegrees,
+          );
+
+          imageX = adjustedPosition.xPos;
+          imageY = adjustedPosition.yPos;
+        }
+
+        page.drawImage(image, {
+          x: imageX,
+          y: imageY,
+          width: imageWidth,
+          height: imageHeight,
+          rotate: degrees(pageRotationInDegrees),
+        });
+
+        return;
+      }
+
+      let fileName = field.fieldUpload?.fileName || field.customText;
+
+      // Add padding similar to web display (roughly 0.5rem equivalent in PDF units)
+      const padding = 8;
+
+      let fontSize = maxFontSize;
+      const textWidth = font.widthOfTextAtSize(fileName, fontSize);
+      let textHeight = font.heightAtSize(fontSize);
+
+      const scalingFactor = Math.min((fieldWidth - padding * 2) / textWidth, fieldHeight / textHeight, 1);
+      fontSize = Math.max(Math.min(fontSize * scalingFactor, maxFontSize), minFontSize);
+
+      // The font size is clamped to a minimum, so long file names can still exceed the
+      // field width. Truncate with an ellipsis (mirroring the CSS `truncate` in the
+      // signing UI) rather than drawing past the field into adjacent page content.
+      const maxTextWidth = fieldWidth - padding * 2;
+
+      if (font.widthOfTextAtSize(fileName, fontSize) > maxTextWidth) {
+        let truncated = fileName;
+
+        while (truncated.length > 1 && font.widthOfTextAtSize(`${truncated}...`, fontSize) > maxTextWidth) {
+          truncated = truncated.slice(0, -1);
+        }
+
+        fileName = `${truncated}...`;
+      }
+
+      textHeight = font.heightAtSize(fontSize);
+
+      let textX = fieldX + padding;
+      let textY = fieldY + (fieldHeight - textHeight) / 2;
+
+      // Invert the Y axis since PDFs use a bottom-left coordinate system
+      textY = pageHeight - textY - textHeight;
+
+      if (pageRotationInDegrees !== 0) {
+        const adjustedPosition = adjustPositionForRotation(pageWidth, pageHeight, textX, textY, pageRotationInDegrees);
+
+        textX = adjustedPosition.xPos;
+        textY = adjustedPosition.yPos;
+      }
+
+      page.drawText(fileName, {
+        x: textX,
+        y: textY,
+        size: fontSize,
+        font,
+        rotate: degrees(pageRotationInDegrees),
+      });
+    })
     .otherwise((field) => {
       const fieldMetaParsers = {
         [FieldType.TEXT]: ZTextFieldMeta,
@@ -500,6 +592,27 @@ export const insertFieldInPDFV1 = async (pdf: PDFDocument, field: FieldWithSigna
     });
 
   return pdf;
+};
+
+/**
+ * Embed the client generated attachment preview (a PNG/JPEG data URI).
+ *
+ * Returns null when there is no usable preview so the caller can fall back to text.
+ */
+const embedAttachmentPreview = async (pdf: PDFDocument, preview: string) => {
+  try {
+    if (preview.startsWith('data:image/png')) {
+      return await pdf.embedPng(preview);
+    }
+
+    if (preview.startsWith('data:image/jpeg') || preview.startsWith('data:image/jpg')) {
+      return await pdf.embedJpg(preview);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  return null;
 };
 
 const adjustPositionForRotation = (

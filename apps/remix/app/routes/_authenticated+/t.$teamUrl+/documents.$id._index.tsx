@@ -1,7 +1,11 @@
+import { getSession } from '@documenso/auth/server/lib/utils/get-session';
 import { EnvelopeRenderProvider } from '@documenso/lib/client-only/providers/envelope-render-provider';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import { PDF_VIEWER_ERROR_MESSAGES } from '@documenso/lib/constants/pdf-viewer-i18n';
 import { DO_NOT_INVALIDATE_QUERY_ON_MUTATION } from '@documenso/lib/constants/trpc';
+import { getEnvelopeById } from '@documenso/lib/server-only/envelope/get-envelope-by-id';
+import { getTeamByUrl } from '@documenso/lib/server-only/team/get-team';
+import { ZAttachmentFieldMeta } from '@documenso/lib/types/field-meta';
 import { mapSecondaryIdToDocumentId } from '@documenso/lib/utils/envelope';
 import { getDocumentDataUrlForPdfViewer } from '@documenso/lib/utils/envelope-download';
 import { formatDocumentsPath } from '@documenso/lib/utils/teams';
@@ -17,7 +21,7 @@ import { Card, CardContent } from '@documenso/ui/primitives/card';
 import { Spinner } from '@documenso/ui/primitives/spinner';
 import { msg } from '@lingui/core/macro';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
-import { DocumentStatus } from '@prisma/client';
+import { DocumentStatus, EnvelopeType, FieldType } from '@prisma/client';
 import { ChevronLeft, Users2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { match } from 'ts-pattern';
@@ -27,6 +31,10 @@ import { DocumentPageViewDropdown } from '~/components/general/document/document
 import { DocumentPageViewInformation } from '~/components/general/document/document-page-view-information';
 import { DocumentPageViewRecentActivity } from '~/components/general/document/document-page-view-recent-activity';
 import { DocumentPageViewRecipients } from '~/components/general/document/document-page-view-recipients';
+import {
+  type DocumentPageViewUploadedFile,
+  DocumentPageViewUploadedFiles,
+} from '~/components/general/document/document-page-view-uploaded-files';
 import { DocumentRecipientLinkCopyDialog } from '~/components/general/document/document-recipient-link-copy-dialog';
 import {
   DocumentStatus as DocumentStatusComponent,
@@ -42,7 +50,51 @@ import { useCurrentTeam } from '~/providers/team';
 
 import type { Route } from './+types/documents.$id._index';
 
-export default function DocumentPage({ params }: Route.ComponentProps) {
+/**
+ * Loads the files recipients uploaded into attachment (file upload) fields.
+ *
+ * The `envelope.get` tRPC output schema strips `fieldUpload`, so this is loaded server side.
+ */
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const { id, teamUrl } = params;
+
+  const { user } = await getSession(request);
+
+  const team = await getTeamByUrl({ userId: user.id, teamUrl });
+
+  const envelope = await getEnvelopeById({
+    id: {
+      type: 'envelopeId',
+      id,
+    },
+    type: EnvelopeType.DOCUMENT,
+    userId: user.id,
+    teamId: team.id,
+  }).catch(() => null);
+
+  const uploadedFiles: DocumentPageViewUploadedFile[] = [];
+
+  for (const field of envelope?.fields ?? []) {
+    if (field.type !== FieldType.ATTACHMENT || !field.inserted || !field.fieldUpload) {
+      continue;
+    }
+
+    const recipient = envelope?.recipients.find((recipient) => recipient.id === field.recipientId);
+    const fieldMeta = ZAttachmentFieldMeta.safeParse(field.fieldMeta);
+
+    uploadedFiles.push({
+      fieldId: field.id,
+      recipientName: recipient?.name || recipient?.email || '',
+      label: fieldMeta.success ? fieldMeta.data.label || null : null,
+      fileName: field.fieldUpload.fileName,
+      fileSize: field.fieldUpload.fileSize,
+    });
+  }
+
+  return { uploadedFiles };
+}
+
+export default function DocumentPage({ params, loaderData }: Route.ComponentProps) {
   const { t } = useLingui();
   const { user } = useSession();
 
@@ -254,6 +306,9 @@ export default function DocumentPage({ params }: Route.ComponentProps) {
 
             {/* Recipients section. */}
             <DocumentPageViewRecipients envelope={envelope} documentRootPath={documentRootPath} />
+
+            {/* Uploaded files section. */}
+            <DocumentPageViewUploadedFiles envelopeId={envelope.id} uploadedFiles={loaderData.uploadedFiles} />
 
             {/* Recent activity section. */}
             <DocumentPageViewRecentActivity

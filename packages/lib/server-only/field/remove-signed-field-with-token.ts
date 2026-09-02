@@ -85,6 +85,12 @@ export const removeSignedFieldWithToken = async ({
       },
     });
 
+    await tx.fieldUpload.deleteMany({
+      where: {
+        fieldId: field.id,
+      },
+    });
+
     if (recipient.role !== RecipientRole.ASSISTANT) {
       await tx.documentAuditLog.create({
         data: createDocumentAuditLogData({

@@ -87,7 +87,7 @@ export const fieldButtonList = [
   {
     type: FieldType.ATTACHMENT,
     icon: PaperclipIcon,
-    name: msg`Attachment`,
+    name: msg`File Upload`,
   },
 ];
 

@@ -1,9 +1,9 @@
 import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import type { DocumentAuditLog, DocumentMeta, Field, Recipient } from '@prisma/client';
-import { RecipientRole } from '@prisma/client';
+import { FieldType, RecipientRole } from '@prisma/client';
 import { isDeepEqual } from 'remeda';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 
 import type {
   TDocumentAuditLog,
@@ -377,6 +377,24 @@ export const formatDocumentAuditLogAction = (i18n: I18n, auditLog: TDocumentAudi
         context: `Audit log format`,
       }),
     }))
+    .with(
+      {
+        type: DOCUMENT_AUDIT_LOG_TYPE.DOCUMENT_FIELD_INSERTED,
+        data: { field: { type: FieldType.ATTACHMENT, data: P.string.minLength(1) } },
+      },
+      ({ data }) => {
+        const fileName = data.field.data;
+
+        return {
+          anonymous: msg({
+            message: `File uploaded: ${fileName}`,
+            context: `Audit log format`,
+          }),
+          you: msg`You uploaded a file: ${fileName}`,
+          user: msg`${user} uploaded a file: ${fileName}`,
+        };
+      },
+    )
     .with({ type: DOCUMENT_AUDIT_LOG_TYPE.DOCUMENT_FIELD_INSERTED }, () => ({
       anonymous: msg({
         message: `Field signed`,

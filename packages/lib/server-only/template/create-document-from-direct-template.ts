@@ -261,6 +261,14 @@ export const createDocumentFromDirectTemplate = async ({
         });
       }
 
+      // Attachment fields need a file upload, which has no storage target until the
+      // document exists. Never let a plain text value mark one as inserted.
+      if (templateField.type === FieldType.ATTACHMENT && signedFieldValue) {
+        throw new AppError(AppErrorCode.INVALID_BODY, {
+          message: 'Attachment fields are not supported in direct templates',
+        });
+      }
+
       if (templateField.type === FieldType.NAME && directRecipientName === undefined) {
         directRecipientName = signedFieldValue?.value;
       }

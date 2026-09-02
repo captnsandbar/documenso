@@ -2,15 +2,18 @@ import { getOptionalSession } from '@documenso/auth/server/lib/utils/get-session
 import { APP_DOCUMENT_UPLOAD_SIZE_LIMIT } from '@documenso/lib/constants/app';
 import { AppError } from '@documenso/lib/errors/app-error';
 import { verifyEmbeddingPresignToken } from '@documenso/lib/server-only/embedding-presign/verify-embedding-presign-token';
+import { getFileServerSide } from '@documenso/lib/universal/upload/get-file.server';
 import { putNormalizedPdfFileServerSide } from '@documenso/lib/universal/upload/put-file.server';
 import { prisma } from '@documenso/prisma';
 import { sValidator } from '@hono/standard-validator';
 import type { Prisma } from '@prisma/client';
+import contentDisposition from 'content-disposition';
 import { Hono } from 'hono';
 
 import type { HonoEnv } from '../../router';
 import { checkEnvelopeFileAccess, handleEnvelopeItemFileRequest, resolveFileUploadUserId } from './files.helpers';
 import {
+  ZGetEnvelopeFieldUploadRequestParamsSchema,
   ZGetEnvelopeItemFileDownloadRequestParamsSchema,
   ZGetEnvelopeItemFileRequestParamsSchema,
   ZGetEnvelopeItemFileRequestQuerySchema,
@@ -231,6 +234,81 @@ export const filesRoute = new Hono<HonoEnv>()
 
         return c.json({ error: 'Internal server error' }, 500);
       }
+    },
+  )
+  /**
+   * Downloads the file a recipient uploaded into an attachment (file upload) field.
+   *
+   * Session authenticated only, for team members with access to the envelope.
+   */
+  .get(
+    '/envelope/:envelopeId/field/:fieldId/upload',
+    sValidator('param', ZGetEnvelopeFieldUploadRequestParamsSchema),
+    async (c) => {
+      const { envelopeId, fieldId } = c.req.valid('param');
+
+      const session = await getOptionalSession(c);
+
+      if (!session.user) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+
+      const fieldUpload = await prisma.fieldUpload.findFirst({
+        where: {
+          fieldId,
+          field: {
+            envelopeId,
+          },
+        },
+        include: {
+          documentData: true,
+          field: {
+            select: {
+              envelope: {
+                select: {
+                  teamId: true,
+                  type: true,
+                  templateType: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!fieldUpload) {
+        return c.json({ error: 'Field upload not found' }, 404);
+      }
+
+      const hasAccess = await checkEnvelopeFileAccess({
+        userId: session.user.id,
+        teamId: fieldUpload.field.envelope.teamId,
+        envelopeType: fieldUpload.field.envelope.type,
+        templateType: fieldUpload.field.envelope.templateType,
+      });
+
+      if (!hasAccess) {
+        return c.json({ error: 'User does not have access to the team that this envelope is associated with' }, 403);
+      }
+
+      const file = await getFileServerSide({
+        type: fieldUpload.documentData.type,
+        data: fieldUpload.documentData.data,
+      }).catch((error) => {
+        console.error(error);
+
+        return null;
+      });
+
+      if (!file) {
+        return c.json({ error: 'File not found' }, 404);
+      }
+
+      c.header('Content-Type', fieldUpload.mimeType);
+      c.header('Content-Disposition', contentDisposition(fieldUpload.fileName));
+      c.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+      return c.body(file);
     },
   )
   .get(

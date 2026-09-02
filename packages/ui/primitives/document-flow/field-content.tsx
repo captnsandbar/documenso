@@ -5,7 +5,7 @@ import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
 import type { DocumentMeta, Signature } from '@prisma/client';
 import { FieldType } from '@prisma/client';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Paperclip } from 'lucide-react';
 
 import { cn } from '../../lib/utils';
 import { Checkbox } from '../checkbox';
@@ -137,6 +137,20 @@ export const FieldContent = ({ field, documentMeta }: FieldIconProps) => {
   }
 
   const labelToDisplay = fieldMeta?.label || _(FRIENDLY_FIELD_TYPE[type]) || '';
+
+  // Uploaded file: show the file name (stored in customText) under the field label.
+  if (field.type === FieldType.ATTACHMENT && field.inserted && field.customText) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden text-center">
+        <p className="w-full truncate text-[clamp(0.07rem,20cqw,0.7rem)] text-muted-foreground">{labelToDisplay}</p>
+        <p className="flex w-full items-center justify-center gap-x-1 truncate text-[clamp(0.07rem,25cqw,0.825rem)] text-foreground">
+          <Paperclip className="h-3 w-3 shrink-0" />
+          <span className="truncate">{field.customText}</span>
+        </p>
+      </div>
+    );
+  }
+
   let textToDisplay: string | undefined;
 
   const isSignatureField = field.type === FieldType.SIGNATURE || field.type === FieldType.FREE_SIGNATURE;

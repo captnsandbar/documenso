@@ -124,6 +124,13 @@ export const signFieldWithToken = async ({
     throw new Error(`Field ${fieldId} has no recipientId`);
   }
 
+  // Attachment fields require an actual file and must go through the multipart
+  // `envelope.field.signAttachment` procedure. Accepting a text value here would
+  // mark a required upload as inserted without any FieldUpload row.
+  if (field.type === FieldType.ATTACHMENT) {
+    throw new Error(`Field ${fieldId} is an attachment field and must be signed via signAttachment`);
+  }
+
   if (field.type === FieldType.NUMBER && field.fieldMeta) {
     const numberFieldParsedMeta = ZNumberFieldMeta.parse(field.fieldMeta);
     const errors = validateNumberField(value, numberFieldParsedMeta, true);
@@ -298,10 +305,10 @@ export const signFieldWithToken = async ({
               type,
               data: updatedField.customText,
             }))
-            .with(FieldType.ATTACHMENT, (type) => ({
-              type,
-              data: updatedField.customText,
-            }))
+            .with(FieldType.ATTACHMENT, () => {
+              // Rejected above: attachments are only inserted via signAttachment.
+              throw new Error(`Field ${fieldId} is an attachment field and must be signed via signAttachment`);
+            })
             .exhaustive(),
           fieldSecurity: derivedRecipientActionAuth
             ? {

@@ -26,6 +26,13 @@ export const ZGetEnvelopeItemFileRequestQuerySchema = z.object({
 
 export type TGetEnvelopeItemFileRequestQuery = z.infer<typeof ZGetEnvelopeItemFileRequestQuerySchema>;
 
+export const ZGetEnvelopeFieldUploadRequestParamsSchema = z.object({
+  envelopeId: z.string().min(1),
+  fieldId: z.coerce.number().int(),
+});
+
+export type TGetEnvelopeFieldUploadRequestParams = z.infer<typeof ZGetEnvelopeFieldUploadRequestParamsSchema>;
+
 export const ZGetEnvelopeItemFileTokenRequestParamsSchema = z.object({
   token: z.string().min(1),
   envelopeItemId: z.string().min(1),

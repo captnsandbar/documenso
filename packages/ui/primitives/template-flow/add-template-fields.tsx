@@ -40,6 +40,7 @@ import {
   Disc,
   Hash,
   Mail,
+  Paperclip,
   Type,
   User,
 } from 'lucide-react';
@@ -931,6 +932,32 @@ export const AddTemplateFieldsFormPartial = ({
                           >
                             <ChevronDown className="h-4 w-4" />
                             <Trans>Dropdown</Trans>
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="group h-full w-full"
+                      onClick={() => setSelectedField(FieldType.ATTACHMENT)}
+                      onMouseDown={() => setSelectedField(FieldType.ATTACHMENT)}
+                      data-selected={selectedField === FieldType.ATTACHMENT ? true : undefined}
+                    >
+                      <Card
+                        className={cn(
+                          'flex h-full w-full cursor-pointer items-center justify-center group-disabled:opacity-50',
+                          // selectedSignerStyles.borderClass,
+                        )}
+                      >
+                        <CardContent className="p-4">
+                          <p
+                            className={cn(
+                              'flex items-center justify-center gap-x-1.5 font-normal text-muted-foreground text-sm group-data-[selected]:text-foreground',
+                            )}
+                          >
+                            <Paperclip className="h-4 w-4" />
+                            <Trans>File Upload</Trans>
                           </p>
                         </CardContent>
                       </Card>

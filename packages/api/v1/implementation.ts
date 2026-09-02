@@ -118,6 +118,14 @@ export const ApiContractV1Implementation = tsr.router(ApiContractV1, {
                   signingStatus: true,
                 },
               },
+              fieldUpload: {
+                select: {
+                  id: true,
+                  fileName: true,
+                  mimeType: true,
+                  fileSize: true,
+                },
+              },
             },
             orderBy: {
               id: 'asc',
@@ -144,6 +152,12 @@ export const ApiContractV1Implementation = tsr.router(ApiContractV1, {
         return {
           ...field,
           fieldMeta: parsedMetaOrNull,
+          fieldUpload: field.fieldUpload
+            ? {
+                ...field.fieldUpload,
+                downloadUrl: `${NEXT_PUBLIC_WEBAPP_URL()}/api/files/envelope/${envelope.id}/field/${field.id}/upload`,
+              }
+            : null,
         };
       });
 

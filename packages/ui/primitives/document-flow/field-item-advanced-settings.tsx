@@ -1,5 +1,6 @@
 import { useAutoSave } from '@documenso/lib/client-only/hooks/use-autosave';
 import {
+  type TAttachmentFieldMeta as AttachmentFieldMeta,
   type TBaseFieldMeta as BaseFieldMeta,
   type TCheckboxFieldMeta as CheckboxFieldMeta,
   type TDateFieldMeta as DateFieldMeta,
@@ -7,6 +8,7 @@ import {
   DEFAULT_EMAIL_OVERFLOW_MODE,
   type TDropdownFieldMeta as DropdownFieldMeta,
   type TEmailFieldMeta as EmailFieldMeta,
+  FIELD_ATTACHMENT_META_DEFAULT_VALUES,
   type TFieldMetaSchema as FieldMeta,
   type TInitialsFieldMeta as InitialsFieldMeta,
   type TNameFieldMeta as NameFieldMeta,
@@ -31,6 +33,7 @@ import {
   DocumentFlowFormContainerHeader,
 } from './document-flow-root';
 import { FieldItem } from './field-item';
+import { AttachmentFieldAdvancedSettings } from './field-items-advanced-settings/attachment-field';
 import { CheckboxFieldAdvancedSettings } from './field-items-advanced-settings/checkbox-field';
 import { DateFieldAdvancedSettings } from './field-items-advanced-settings/date-field';
 import { DropdownFieldAdvancedSettings } from './field-items-advanced-settings/dropdown-field';
@@ -62,7 +65,8 @@ export type FieldMetaKeys =
   | keyof InitialsFieldMeta
   | keyof NameFieldMeta
   | keyof EmailFieldMeta
-  | keyof DateFieldMeta;
+  | keyof DateFieldMeta
+  | keyof AttachmentFieldMeta;
 
 const getDefaultState = (fieldType: FieldType): FieldMeta => {
   switch (fieldType) {
@@ -144,6 +148,8 @@ const getDefaultState = (fieldType: FieldType): FieldMeta => {
         required: false,
         readOnly: false,
       };
+    case FieldType.ATTACHMENT:
+      return FIELD_ATTACHMENT_META_DEFAULT_VALUES;
     default:
       throw new Error(`Unsupported field type: ${fieldType}`);
   }
@@ -315,6 +321,13 @@ export const FieldAdvancedSettings = forwardRef<HTMLDivElement, FieldAdvancedSet
             ))
             .with(FieldType.DROPDOWN, () => (
               <DropdownFieldAdvancedSettings
+                fieldState={fieldState}
+                handleFieldChange={handleFieldChange}
+                handleErrors={setErrors}
+              />
+            ))
+            .with(FieldType.ATTACHMENT, () => (
+              <AttachmentFieldAdvancedSettings
                 fieldState={fieldState}
                 handleFieldChange={handleFieldChange}
                 handleErrors={setErrors}

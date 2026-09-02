@@ -15,6 +15,7 @@ import type { CompletedField } from '@documenso/lib/types/fields';
 import { isFieldUnsignedAndRequired } from '@documenso/lib/utils/advanced-fields-helpers';
 import { getDocumentDataUrlForPdfViewer } from '@documenso/lib/utils/envelope-download';
 import { validateFieldsInserted } from '@documenso/lib/utils/fields';
+import type { FieldWithSignature } from '@documenso/prisma/types/field-with-signature';
 import type { FieldWithSignatureAndFieldMeta } from '@documenso/prisma/types/field-with-signature-and-fieldmeta';
 import type { RecipientWithFields } from '@documenso/prisma/types/recipient-with-fields';
 import { trpc } from '@documenso/trpc/react';
@@ -23,12 +24,13 @@ import { Button } from '@documenso/ui/primitives/button';
 import { Card, CardContent } from '@documenso/ui/primitives/card';
 import { ElementVisible } from '@documenso/ui/primitives/element-visible';
 import { Trans } from '@lingui/react/macro';
-import type { Field } from '@prisma/client';
 import { FieldType, RecipientRole } from '@prisma/client';
 import { LucideChevronDown, LucideChevronUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { match, P } from 'ts-pattern';
 
+import { SignFieldAttachmentDialog } from '~/components/dialogs/sign-field-attachment-dialog';
+import { DocumentSigningAttachmentField } from '~/components/general/document-signing/document-signing-attachment-field';
 import { DocumentSigningAttachmentsPopover } from '~/components/general/document-signing/document-signing-attachments-popover';
 import { DocumentSigningAutoSign } from '~/components/general/document-signing/document-signing-auto-sign';
 import { DocumentSigningCheckboxField } from '~/components/general/document-signing/document-signing-checkbox-field';
@@ -57,7 +59,7 @@ type DocumentSigningBranding = {
 export type DocumentSigningPageViewV1Props = {
   recipient: RecipientWithFields;
   document: DocumentAndSender;
-  fields: Field[];
+  fields: FieldWithSignature[];
   completedFields: CompletedField[];
   isRecipientsTurn: boolean;
   allRecipients?: RecipientWithFields[];
@@ -177,6 +179,8 @@ export const DocumentSigningPageViewV1 = ({
 
   return (
     <DocumentSigningRecipientProvider recipient={recipient} targetSigner={targetSigner}>
+      <SignFieldAttachmentDialog.Root />
+
       <div className="mx-auto w-full max-w-screen-xl sm:px-6">
         {hasCustomBrandingLogo && (
           <img
@@ -456,6 +460,7 @@ export const DocumentSigningPageViewV1 = ({
                   };
                   return <DocumentSigningDropdownField key={field.id} field={fieldWithMeta} />;
                 })
+                .with(FieldType.ATTACHMENT, () => <DocumentSigningAttachmentField key={field.id} field={field} />)
                 .otherwise(() => null),
             )}
         </ElementVisible>

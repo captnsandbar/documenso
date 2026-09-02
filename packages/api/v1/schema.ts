@@ -75,6 +75,19 @@ export const ZSuccessfulGetDocumentResponseSchema = ZSuccessfulDocumentResponseS
     })
       .extend({
         fieldMeta: ZFieldMetaSchema.nullish(),
+        fieldUpload: z
+          .object({
+            id: z.string(),
+            fileName: z.string(),
+            mimeType: z.string(),
+            fileSize: z.number(),
+            downloadUrl: z
+              .string()
+              .optional()
+              .describe('Download URL for the uploaded file. Requires an authenticated web session.'),
+          })
+          .nullish()
+          .describe('The file uploaded by the recipient. Only present for inserted ATTACHMENT fields.'),
       })
       .array(),
   ),

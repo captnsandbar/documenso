@@ -96,7 +96,12 @@ export const EmbedDirectTemplateClientPage = ({
 
   const [throttledOnCompleteClick, isThrottled] = useThrottleFn(() => void onCompleteClick(), 500);
 
-  const [localFields, setLocalFields] = useState<DirectTemplateLocalField[]>(() => fields);
+  // Attachment fields cannot be uploaded against a direct template because the
+  // document (and therefore the upload target) only exists once signing completes.
+  // Exclude them so a field that can never be signed is not rendered or gated on.
+  const [localFields, setLocalFields] = useState<DirectTemplateLocalField[]>(() =>
+    fields.filter((field) => field.type !== FieldType.ATTACHMENT),
+  );
 
   const [pendingFields, _completedFields] = [
     sortFieldsByPosition(localFields.filter((field) => isFieldUnsignedAndRequired(field))),

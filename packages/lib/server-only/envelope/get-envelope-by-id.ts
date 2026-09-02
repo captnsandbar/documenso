@@ -61,7 +61,19 @@ export const getEnvelopeById = async ({ id, userId, teamId, type }: GetEnvelopeB
           id: 'asc',
         },
       },
-      fields: true,
+      fields: {
+        include: {
+          // previewImageAsBase64 and documentDataId are intentionally excluded.
+          fieldUpload: {
+            select: {
+              id: true,
+              fileName: true,
+              mimeType: true,
+              fileSize: true,
+            },
+          },
+        },
+      },
       team: {
         select: {
           id: true,
