@@ -306,12 +306,6 @@ msgstr "{0} 직접 서명 템플릿"
 msgid "{0} field"
 msgstr "{0} 필드"
 
-#. placeholder {0}: team.name
-#. placeholder {1}: envelope.title
-#: packages/lib/jobs/definitions/emails/send-signing-email.handler.ts
-msgid "{0} has invited you to {recipientActionVerb} the document \"{1}\"."
-msgstr "{0}에서 \"{1}\" 문서에 대해 귀하께 {recipientActionVerb}하도록 초대했습니다."
-
 #. placeholder {0}: organisation.name
 #: apps/remix/app/components/general/settings-upsell/branding-upsell.tsx
 #: apps/remix/app/components/general/settings-upsell/email-domains-upsell.tsx
@@ -392,10 +386,6 @@ msgstr "{charactersRemaining, plural, other {{charactersRemaining}자 남음}}"
 msgid "{expiresInMinutes, plural, one {This code will expire in # minute.} other {This code will expire in # minutes.}}"
 msgstr "{expiresInMinutes, plural, other {이 코드는 #분 후 만료됩니다.}}"
 
-#: packages/email/templates/document-invite.tsx
-msgid "{inviterName} <0>({inviterEmail})</0>"
-msgstr "{inviterName} <0>({inviterEmail})</0>"
-
 #: packages/email/templates/document-cancel.tsx
 msgid "{inviterName} has cancelled the document {documentName}, you don't need to sign it anymore."
 msgstr "{inviterName}이(가) {documentName} 문서를 취소했으며, 더 이상 서명할 필요가 없습니다."
@@ -413,10 +403,6 @@ msgstr "{inviterName}이(가) 귀하께 {0}하도록 초대했습니다<0/>\"{do
 msgid "{inviterName} has invited you to {action} {documentName}"
 msgstr "{inviterName}이(가) 귀하께 {action} {documentName} 문서를 요청했습니다."
 
-#: packages/email/templates/document-invite.tsx
-msgid "{inviterName} has invited you to {action} the document \"{documentName}\"."
-msgstr "{inviterName}이(가) 귀하께 \"{documentName}\" 문서에 {action}하도록 초대했습니다."
-
 #: packages/email/templates/recipient-removed-from-document.tsx
 msgid "{inviterName} has removed you from the document {documentName}."
 msgstr "{inviterName}이(가) 귀하를 {documentName} 문서에서 제거했습니다."
@@ -424,12 +410,6 @@ msgstr "{inviterName}이(가) 귀하를 {documentName} 문서에서 제거했습
 #: packages/email/templates/recipient-removed-from-document.tsx
 msgid "{inviterName} has removed you from the document<0/>\"{documentName}\""
 msgstr "{inviterName}이(가) 귀하를 문서에서 제거했습니다<0/>\"{documentName}\""
-
-#. placeholder {0}: team.name
-#. placeholder {1}: envelope.title
-#: packages/lib/jobs/definitions/emails/send-signing-email.handler.ts
-msgid "{inviterName} on behalf of \"{0}\" has invited you to {recipientActionVerb} the document \"{1}\"."
-msgstr "{inviterName}이(가) \"{0}\"을(를) 대신하여 \"{1}\" 문서에 대해 귀하께 {recipientActionVerb}하도록 초대했습니다."
 
 #. placeholder {0}: _(actionVerb).toLowerCase()
 #: packages/email/template-components/template-document-invite.tsx
@@ -675,6 +655,10 @@ msgstr "{user}가 문서 제목을 업데이트했습니다"
 #: packages/lib/utils/document-audit-logs.ts
 msgid "{user} updated the document visibility"
 msgstr "{user}가 문서 공개 범위를 업데이트했습니다"
+
+#: packages/lib/utils/document-audit-logs.ts
+msgid "{user} uploaded a file: {fileName}"
+msgstr ""
 
 #: packages/lib/utils/document-audit-logs.ts
 msgid "{user} validated a 2FA token for the document"
@@ -1710,6 +1694,7 @@ msgid "Allowed Email Domains"
 msgstr "허용된 이메일 도메인"
 
 #: apps/remix/app/components/forms/editor/editor-field-attachment-form.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 msgid "Allowed files"
 msgstr ""
 
@@ -1885,6 +1870,7 @@ msgstr "항목을 이동하는 동안 오류가 발생했습니다."
 msgid "An error occurred while rejecting the document. Please try again."
 msgstr "문서를 거부하는 중 오류가 발생했습니다. 다시 시도해 주세요."
 
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-checkbox-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-date-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-dropdown-field.tsx
@@ -1912,6 +1898,7 @@ msgstr "이 사용자의 2단계 인증을 재설정하는 동안 오류가 발�
 msgid "An error occurred while sending your confirmation email"
 msgstr "확인 이메일을 보내는 중 오류가 발생했습니다."
 
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-checkbox-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-date-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-dropdown-field.tsx
@@ -1960,6 +1947,7 @@ msgstr "서명을 업데이트하는 중 오류가 발생했습니다."
 msgid "An error occurred while updating your profile."
 msgstr "프로필을 업데이트하는 중 오류가 발생했습니다."
 
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
 #: apps/remix/app/components/general/envelope-signing/envelope-signer-page-renderer.tsx
 msgid "An error occurred while uploading the file."
 msgstr ""
@@ -2069,6 +2057,8 @@ msgstr "귀하를 초대한 문서는 여기에 표시됩니다."
 
 #: apps/remix/app/components/forms/editor/editor-field-attachment-form.tsx
 #: apps/remix/app/components/forms/editor/editor-field-attachment-form.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 msgid "Any file"
 msgstr ""
 
@@ -2292,12 +2282,6 @@ msgstr "보조 중"
 msgid "At least one signature type must be enabled"
 msgstr "최소 한 가지 이상의 서명 유형을 활성화해야 합니다."
 
-#: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-drag-drop.tsx
-#: packages/lib/utils/fields.ts
-#: packages/ui/primitives/document-flow/types.ts
-msgid "Attachment"
-msgstr ""
-
 #: apps/remix/app/components/general/document/document-attachments-popover.tsx
 #: apps/remix/app/components/general/document/embedded-editor-attachment-popover.tsx
 msgid "Attachment added successfully."
@@ -2307,10 +2291,6 @@ msgstr "첨부 파일이 성공적으로 추가되었습니다."
 #: apps/remix/app/components/general/document/embedded-editor-attachment-popover.tsx
 msgid "Attachment removed successfully."
 msgstr "첨부 파일이 성공적으로 제거되었습니다."
-
-#: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-page.tsx
-msgid "Attachment Settings"
-msgstr ""
 
 #: apps/remix/app/components/general/document-signing/document-signing-attachments-popover.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-attachments-popover.tsx
@@ -3060,7 +3040,6 @@ msgstr "다음 서명자들의 필드를 완료해 주세요."
 #: apps/remix/app/components/general/template/template-page-view-documents-table.tsx
 #: apps/remix/app/components/tables/admin-document-jobs-table.tsx
 #: apps/remix/app/components/tables/organisation-insights-table.tsx
-#: packages/email/template-components/template-document-completed.tsx
 #: packages/email/template-components/template-document-recipient-signed.tsx
 #: packages/email/template-components/template-document-self-signed.tsx
 #: packages/lib/constants/document.ts
@@ -4186,10 +4165,6 @@ msgstr "개발자 모드"
 msgid "Device"
 msgstr "디바이스"
 
-#: packages/email/template-components/template-footer.tsx
-msgid "Did not expect this email? <0>Click here to report the sender</0>. Never sign a document you don't recognize or weren't expecting."
-msgstr "이 이메일을 예상하지 못하셨나요? <0>보낸 사람을 신고하려면 여기를 클릭하세요</0>. 잘 알지 못하거나 예상하지 못한 문서는 절대 서명하지 마세요."
-
 #: packages/email/templates/reset-password.tsx
 msgid "Didn't request a password change? We are here to help you secure your account, just <0>contact us</0>."
 msgstr "비밀번호 변경을 요청하지 않으셨나요? 계정을 안전하게 보호하실 수 있도록 도와드리겠습니다. <0>문의하기</0>만 해 주세요."
@@ -4880,6 +4855,7 @@ msgstr ""
 #: apps/remix/app/components/general/document/document-certificate-qr-view.tsx
 #: apps/remix/app/components/general/document/document-page-view-button.tsx
 #: apps/remix/app/components/general/document/document-page-view-dropdown.tsx
+#: apps/remix/app/components/general/document/document-page-view-uploaded-files.tsx
 #: apps/remix/app/components/tables/documents-table-action-button.tsx
 #: apps/remix/app/components/tables/documents-table-action-dropdown.tsx
 #: apps/remix/app/components/tables/envelopes-table-bulk-action-bar.tsx
@@ -5637,6 +5613,8 @@ msgstr "봉투가 업데이트되었습니다"
 #: apps/remix/app/components/dialogs/template-bulk-send-dialog.tsx
 #: apps/remix/app/components/dialogs/webhook-create-dialog.tsx
 #: apps/remix/app/components/embed/multisign/multi-sign-document-signing-view.tsx
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-auto-sign.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-checkbox-field.tsx
 #: apps/remix/app/components/general/document-signing/document-signing-checkbox-field.tsx
@@ -5994,6 +5972,7 @@ msgstr "필드 ID:"
 
 #: apps/remix/app/components/forms/editor/editor-field-generic-field-forms.tsx
 #: apps/remix/app/components/forms/editor/editor-field-text-form.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/checkbox-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/radio-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/text-field.tsx
@@ -6044,6 +6023,25 @@ msgstr "파일이 너무 작습니다"
 msgid "File size exceeds the limit of {APP_DOCUMENT_UPLOAD_SIZE_LIMIT} MB"
 msgstr "파일 크기가 {APP_DOCUMENT_UPLOAD_SIZE_LIMIT}MB 제한을 초과했습니다."
 
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
+#: apps/remix/app/components/general/document/document-page-view-uploaded-files.tsx
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-drag-drop.tsx
+#: packages/lib/utils/fields.ts
+#: packages/ui/primitives/document-flow/add-fields.tsx
+#: packages/ui/primitives/document-flow/types.ts
+#: packages/ui/primitives/template-flow/add-template-fields.tsx
+msgid "File Upload"
+msgstr ""
+
+#: apps/remix/app/components/general/envelope-editor/envelope-editor-fields-page.tsx
+msgid "File Upload Settings"
+msgstr ""
+
+#: packages/lib/utils/document-audit-logs.ts
+msgctxt "Audit log format"
+msgid "File uploaded: {fileName}"
+msgstr ""
+
 #: apps/remix/app/components/dialogs/email-transport-create-dialog.tsx
 msgid "Fill in the details to create a new email transport."
 msgstr "새 이메일 전송 방식을 만들기 위해 세부 정보를 입력하세요."
@@ -6055,6 +6053,10 @@ msgstr "새 구독 클레임을 생성하려면 세부 정보를 입력하세요
 #: apps/remix/app/routes/_authenticated+/admin+/email-domains._index.tsx
 msgid "Filter by status"
 msgstr "상태로 필터링"
+
+#: apps/remix/app/components/general/document-signing/document-signing-mobile-widget.tsx
+msgid "Fit page"
+msgstr ""
 
 #: apps/remix/app/components/forms/branding-preferences-form.tsx
 msgid "Focus ring colour."
@@ -6583,6 +6585,7 @@ msgid "If your authenticator app does not support QR codes, you can use the foll
 msgstr "인증 앱이 QR 코드를 지원하지 않는 경우, 대신 다음 코드를 사용할 수 있습니다:"
 
 #: apps/remix/app/components/forms/editor/editor-field-attachment-form.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 msgid "Images only"
 msgstr ""
 
@@ -6918,6 +6921,7 @@ msgstr "한국어"
 #: apps/remix/app/components/forms/editor/editor-field-text-form.tsx
 #: apps/remix/app/components/general/document/document-attachments-popover.tsx
 #: apps/remix/app/components/general/document/embedded-editor-attachment-popover.tsx
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/checkbox-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/number-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/number-field.tsx
@@ -9543,6 +9547,7 @@ msgstr "패스키 필수"
 msgid "Require password"
 msgstr "비밀번호 필수"
 
+#: packages/ui/primitives/document-flow/field-items-advanced-settings/attachment-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/checkbox-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/dropdown-field.tsx
 #: packages/ui/primitives/document-flow/field-items-advanced-settings/number-field.tsx
@@ -12159,10 +12164,6 @@ msgstr "이 문서는 위 템플릿을 사용해 귀하 또는 팀 구성원이 
 msgid "This document was created using a direct link."
 msgstr "이 문서는 직접 링크를 사용해 생성되었습니다."
 
-#: packages/email/template-components/template-footer.tsx
-msgid "This document was sent using <0>Documenso</0>."
-msgstr "이 문서는 <0>Documenso</0>를 사용하여 전송되었습니다."
-
 #: apps/remix/app/components/dialogs/envelope-duplicate-dialog.tsx
 msgid "This document will be duplicated."
 msgstr "이 문서는 복제됩니다."
@@ -13115,6 +13116,10 @@ msgstr "문서를 업로드하고 수신자를 추가하세요"
 msgid "Upload failed"
 msgstr "업로드 실패"
 
+#: apps/remix/app/components/general/document-signing/document-signing-attachment-field.tsx
+msgid "Upload file"
+msgstr ""
+
 #: apps/remix/app/components/general/admin-global-settings-section.tsx
 msgid "Upload signature"
 msgstr "서명 업로드"
@@ -13152,6 +13157,10 @@ msgstr "업로드된 파일이 너무 작습니다"
 #: apps/remix/app/components/forms/avatar-image.tsx
 msgid "Uploaded file not an allowed file type"
 msgstr "업로드된 파일이 허용된 형식이 아닙니다"
+
+#: apps/remix/app/components/general/document/document-page-view-uploaded-files.tsx
+msgid "Uploaded files"
+msgstr ""
 
 #: apps/remix/app/components/general/envelope-editor/envelope-editor-upload-page.tsx
 #: apps/remix/app/components/general/envelope/envelope-drop-zone-wrapper.tsx
@@ -14915,6 +14924,10 @@ msgid "You updated the document visibility"
 msgstr "문서 공개 범위를 업데이트했습니다"
 
 #: packages/lib/utils/document-audit-logs.ts
+msgid "You uploaded a file: {fileName}"
+msgstr ""
+
+#: packages/lib/utils/document-audit-logs.ts
 msgid "You validated a 2FA token for the document"
 msgstr "문서에 대한 2FA 토큰을 검증했습니다"
 
@@ -15363,3 +15376,7 @@ msgstr "인증 코드:"
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.sso.tsx
 msgid "your-domain.com another-domain.com"
 msgstr "your-domain.com another-domain.com"
+
+#: apps/remix/app/components/general/document-signing/document-signing-mobile-widget.tsx
+msgid "Zoom in"
+msgstr ""
