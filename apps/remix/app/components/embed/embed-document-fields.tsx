@@ -40,9 +40,16 @@ export type EmbedDocumentFieldsProps = {
   > | null;
   onSignField?: (value: TSignFieldWithTokenMutationSchema) => Promise<void> | void;
   onUnsignField?: (value: TRemovedSignedFieldWithTokenMutationSchema) => Promise<void> | void;
+  onSignatureChanged?: (signature: string | null) => void;
 };
 
-export const EmbedDocumentFields = ({ fields, metadata, onSignField, onUnsignField }: EmbedDocumentFieldsProps) => {
+export const EmbedDocumentFields = ({
+  fields,
+  metadata,
+  onSignField,
+  onUnsignField,
+  onSignatureChanged,
+}: EmbedDocumentFieldsProps) => {
   return (
     <>
       <SignFieldAttachmentDialog.Root />
@@ -56,6 +63,7 @@ export const EmbedDocumentFields = ({ fields, metadata, onSignField, onUnsignFie
                 field={field}
                 onSignField={onSignField}
                 onUnsignField={onUnsignField}
+                onSignatureChanged={onSignatureChanged}
                 typedSignatureEnabled={metadata?.typedSignatureEnabled}
                 uploadSignatureEnabled={metadata?.uploadSignatureEnabled}
                 drawSignatureEnabled={metadata?.drawSignatureEnabled}

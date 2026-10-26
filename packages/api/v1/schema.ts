@@ -11,6 +11,7 @@ import {
 import { ZDocumentEmailSettingsSchema } from '@documenso/lib/types/document-email';
 import { ZEnvelopeAttachmentTypeSchema } from '@documenso/lib/types/envelope-attachment';
 import { ZFieldMetaPrefillFieldsSchema, ZFieldMetaSchema } from '@documenso/lib/types/field-meta';
+import { ZRecipientSigningOrderSchema } from '@documenso/lib/types/recipient';
 import { zEmail } from '@documenso/lib/utils/zod';
 import {
   DocumentDataType,
@@ -158,7 +159,7 @@ export const ZCreateDocumentMutationSchema = z.object({
       name: z.string().min(1),
       email: zEmail().min(1),
       role: z.nativeEnum(RecipientRole).optional().default(RecipientRole.SIGNER),
-      signingOrder: z.number().nullish(),
+      signingOrder: ZRecipientSigningOrderSchema.nullish(),
     }),
   ),
   meta: z
@@ -248,7 +249,7 @@ export const ZCreateDocumentFromTemplateMutationSchema = z.object({
       name: z.string().min(1),
       email: zEmail().min(1),
       role: z.nativeEnum(RecipientRole).optional().default(RecipientRole.SIGNER),
-      signingOrder: z.number().nullish(),
+      signingOrder: ZRecipientSigningOrderSchema.nullish(),
     }),
   ),
   meta: z
@@ -328,7 +329,7 @@ export const ZGenerateDocumentFromTemplateMutationSchema = z.object({
         id: z.number(),
         email: zEmail(),
         name: z.string().optional(),
-        signingOrder: z.number().optional(),
+        signingOrder: ZRecipientSigningOrderSchema.optional(),
       }),
     )
     .refine(
@@ -402,7 +403,7 @@ export const ZCreateRecipientMutationSchema = z.object({
   name: z.string().min(1),
   email: zEmail().min(1),
   role: z.nativeEnum(RecipientRole).optional().default(RecipientRole.SIGNER),
-  signingOrder: z.number().nullish(),
+  signingOrder: ZRecipientSigningOrderSchema.nullish(),
   authOptions: z
     .object({
       actionAuth: z

@@ -5,6 +5,7 @@ import { Body, Container, Head, Html, Img, Preview, Section } from '../component
 import type { TemplateAdminUserCreatedProps } from '../template-components/template-admin-user-created';
 import { TemplateAdminUserCreated } from '../template-components/template-admin-user-created';
 import { TemplateFooter } from '../template-components/template-footer';
+import { getEmailAssetUrl } from '../utils/asset-url';
 
 export const AdminUserCreatedTemplate = ({
   resetPasswordLink,
@@ -13,10 +14,6 @@ export const AdminUserCreatedTemplate = ({
   const { _ } = useLingui();
 
   const previewText = msg`Set your password for Documenso`;
-
-  const getAssetUrl = (path: string) => {
-    return new URL(path, assetBaseUrl).toString();
-  };
 
   return (
     <Html>
@@ -27,7 +24,7 @@ export const AdminUserCreatedTemplate = ({
         <Section>
           <Container className="mx-auto my-5 max-w-xl px-4 py-5">
             <Section>
-              <Img src={getAssetUrl('/static/logo.png')} alt="Documenso Logo" className="mb-4" />
+              <Img src={getEmailAssetUrl(assetBaseUrl, 'static/logo.png')} alt="Documenso Logo" className="mb-4" />
 
               <TemplateAdminUserCreated resetPasswordLink={resetPasswordLink} assetBaseUrl={assetBaseUrl} />
             </Section>

@@ -1,3 +1,4 @@
+import { useAnalytics } from '@documenso/lib/client-only/hooks/use-analytics';
 import { usePageRenderer } from '@documenso/lib/client-only/hooks/use-page-renderer';
 import { useWindowSize } from '@documenso/lib/client-only/hooks/use-window-size';
 import {
@@ -68,6 +69,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
 
   const { executeActionAuthProcedure } = useRequiredDocumentSigningAuthContext();
   const { toast } = useToast();
+  const analytics = useAnalytics();
 
   const {
     envelopeData,
@@ -102,7 +104,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
   const cachedRenderFields = useRef<Map<number, LocalSignerField>>(new Map());
   const prevShowPendingFieldTooltip = useRef(showPendingFieldTooltip);
 
-  const { onFieldSigned, onFieldUnsigned } = useEmbedSigningContext() || {};
+  const { onFieldSigned, onFieldUnsigned, onSignatureChanged } = useEmbedSigningContext() || {};
 
   // Phones: centre the pending-field tooltip whenever it mounts so the user is
   // walked from field to field without hunting. Width is 0 on the first render.
@@ -460,6 +462,7 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
                 });
 
                 setSignature(payload.value);
+                onSignatureChanged?.(payload.value);
               } else {
                 await signField(field.id, payload);
               }
@@ -489,6 +492,14 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
       unsafeRenderFieldOnLayer(unparsedField, fieldCanvasStyleCache);
     } catch (err) {
       console.error(err);
+
+      analytics.captureException(err, {
+        source: 'signing',
+        location: 'page_render',
+        recipientId: recipient.id,
+        envelopeId: envelope.id,
+      });
+
       setRenderError(true);
     }
   };
@@ -569,6 +580,14 @@ export const EnvelopeSignerPageRenderer = ({ pageData }: { pageData: PageRenderD
       }
     } catch (err) {
       console.error(err);
+
+      analytics.captureException(err, {
+        source: 'signing',
+        location: 'sign_field',
+        fieldType: payload.type,
+        recipientId: recipient.id,
+        envelopeId: envelope.id,
+      });
 
       toast({
         title: t`Error`,

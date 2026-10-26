@@ -9,6 +9,7 @@ import { TemplateBrandingLogo } from '../template-components/template-branding-l
 import type { TemplateDocumentInviteProps } from '../template-components/template-document-invite';
 import { TemplateDocumentInvite } from '../template-components/template-document-invite';
 import { TemplateFooter } from '../template-components/template-footer';
+import { TemplateNewAccountWarning } from '../template-components/template-new-account-warning';
 
 export type DocumentInviteEmailTemplateProps = Partial<TemplateDocumentInviteProps> & {
   customBody?: string;
@@ -19,6 +20,12 @@ export type DocumentInviteEmailTemplateProps = Partial<TemplateDocumentInvitePro
   includeSenderDetails?: boolean;
   organisationType?: OrganisationType;
   reportUrl?: string;
+
+  /**
+   * The user's own email, not a team email, so the recipient can verify who
+   * actually contacted them.
+   */
+  newAccountWarningSenderEmail?: string;
 };
 
 export const DocumentInviteEmailTemplate = ({
@@ -34,6 +41,7 @@ export const DocumentInviteEmailTemplate = ({
   includeSenderDetails,
   organisationType,
   reportUrl,
+  newAccountWarningSenderEmail,
 }: DocumentInviteEmailTemplateProps) => {
   const { _ } = useLingui();
 
@@ -59,6 +67,10 @@ export const DocumentInviteEmailTemplate = ({
         <Preview>{_(previewText)}</Preview>
 
         <Section>
+          {newAccountWarningSenderEmail && (
+            <TemplateNewAccountWarning senderEmail={newAccountWarningSenderEmail} reportUrl={reportUrl} />
+          )}
+
           <Container className="mx-auto" style={{ maxWidth: '560px', padding: '24px 20px' }}>
             <Section>
               <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />

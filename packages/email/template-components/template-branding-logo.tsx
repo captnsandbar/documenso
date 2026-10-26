@@ -1,5 +1,6 @@
 import { Img, Link } from '../components';
 import { useBranding } from '../providers/branding';
+import { getEmailAssetUrl } from '../utils/asset-url';
 import { getSafeBrandingUrl } from '../utils/branding-url';
 
 export type TemplateBrandingLogoProps = {
@@ -32,7 +33,7 @@ export const TemplateBrandingLogo = ({ assetBaseUrl, className = 'mb-4' }: Templ
   const hasCustomBrandingLogo = branding.brandingEnabled && Boolean(branding.brandingLogo);
 
   if (!hasCustomBrandingLogo) {
-    const documensoLogoUrl = new URL('/static/logo.png', assetBaseUrl).toString();
+    const documensoLogoUrl = getEmailAssetUrl(assetBaseUrl, 'static/logo.png');
 
     return (
       <Img src={documensoLogoUrl} alt="Documenso Logo" width={LOGO_WIDTH_PX} className={className} style={logoStyle} />

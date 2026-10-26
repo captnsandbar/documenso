@@ -8,6 +8,7 @@ import { TemplateBrandingLogo } from '../template-components/template-branding-l
 import { TemplateCustomMessageBody } from '../template-components/template-custom-message-body';
 import { TemplateDocumentReminder } from '../template-components/template-document-reminder';
 import { TemplateFooter } from '../template-components/template-footer';
+import { TemplateNewAccountWarning } from '../template-components/template-new-account-warning';
 
 export type DocumentReminderEmailTemplateProps = {
   recipientName: string;
@@ -17,6 +18,7 @@ export type DocumentReminderEmailTemplateProps = {
   customBody?: string;
   role: RecipientRole;
   reportUrl?: string;
+  newAccountWarningSenderEmail?: string;
 };
 
 export const DocumentReminderEmailTemplate = ({
@@ -27,6 +29,7 @@ export const DocumentReminderEmailTemplate = ({
   customBody,
   role = RecipientRole.SIGNER,
   reportUrl,
+  newAccountWarningSenderEmail,
 }: DocumentReminderEmailTemplateProps) => {
   const { _ } = useLingui();
 
@@ -42,6 +45,10 @@ export const DocumentReminderEmailTemplate = ({
         <Preview>{_(previewText)}</Preview>
 
         <Section>
+          {newAccountWarningSenderEmail && (
+            <TemplateNewAccountWarning senderEmail={newAccountWarningSenderEmail} reportUrl={reportUrl} />
+          )}
+
           <Container className="mx-auto my-5 max-w-xl px-4 py-5">
             <Section>
               <TemplateBrandingLogo assetBaseUrl={assetBaseUrl} className="mb-4" />
